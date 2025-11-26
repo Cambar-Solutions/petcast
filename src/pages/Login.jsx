@@ -24,6 +24,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [showCredentials, setShowCredentials] = useState(false);
   const [recoverySuccess, setRecoverySuccess] = useState(false);
+  const [activeTab, setActiveTab] = useState('login');
 
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
@@ -173,11 +174,14 @@ export default function Login() {
     }, 1500);
   };
 
-  const resetRecovery = () => {
-    setRecoveryStep(1);
-    setRecoveryData({ phone: '', code: '', newPassword: '', confirmPassword: '' });
+  const resetRecovery = (newTab) => {
+    if (newTab === 'login') {
+      setRecoveryStep(1);
+      setRecoveryData({ phone: '', code: '', newPassword: '', confirmPassword: '' });
+      setRecoverySuccess(false);
+    }
     setErrors({});
-    setRecoverySuccess(false);
+    setActiveTab(newTab);
   };
 
   return (
@@ -238,7 +242,7 @@ export default function Login() {
           </div>
 
           {/* Tabs */}
-          <Tabs defaultValue="login" className="w-full" onValueChange={resetRecovery}>
+          <Tabs value={activeTab} onValueChange={resetRecovery} className="w-full">
             <TabsList className="w-full">
               <TabsTrigger value="login">Ingresa</TabsTrigger>
               <TabsTrigger value="recovery">Recupera</TabsTrigger>
@@ -282,10 +286,7 @@ export default function Login() {
 
                   <button
                     type="button"
-                    onClick={() => {
-                      const recoveryTab = document.querySelector('[data-state="inactive"][value="recovery"]');
-                      if (recoveryTab) recoveryTab.click();
-                    }}
+                    onClick={() => setActiveTab('recovery')}
                     className="text-sm text-petcast-heading font-medium hover:underline"
                   >
                     Olvidaste tu contrasena?
