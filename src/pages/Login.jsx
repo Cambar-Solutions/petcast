@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ChevronDown, ChevronUp, Phone, KeyRound, CheckCircle } from 'lucide-react';
 import { Input, Button } from '../shared/components';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/shared/components/ui/tabs';
 import { useAuth } from '../shared/context/AuthContext';
@@ -12,14 +13,17 @@ export default function Login() {
     email: '',
     password: ''
   });
-  const [registerData, setRegisterData] = useState({
-    name: '',
-    email: '',
-    password: '',
+  const [recoveryStep, setRecoveryStep] = useState(1); // 1: phone, 2: code, 3: new password
+  const [recoveryData, setRecoveryData] = useState({
+    phone: '',
+    code: '',
+    newPassword: '',
     confirmPassword: ''
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showCredentials, setShowCredentials] = useState(false);
+  const [recoverySuccess, setRecoverySuccess] = useState(false);
 
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
@@ -36,9 +40,9 @@ export default function Login() {
     }
   };
 
-  const handleRegisterChange = (e) => {
+  const handleRecoveryChange = (e) => {
     const { name, value } = e.target;
-    setRegisterData(prev => ({
+    setRecoveryData(prev => ({
       ...prev,
       [name]: value
     }));
@@ -77,7 +81,6 @@ export default function Login() {
     const result = await login(loginData.email, loginData.password);
 
     if (result.success) {
-      // Redirigir segun el rol
       const redirectPath = getRedirectPath();
       navigate(redirectPath);
     } else {
@@ -87,29 +90,67 @@ export default function Login() {
     setIsLoading(false);
   };
 
-  const handleRegisterSubmit = async (e) => {
+  const handleSendCode = async (e) => {
     e.preventDefault();
-
     const newErrors = {};
-    if (!registerData.name) {
-      newErrors.name = 'El nombre es requerido';
+
+    if (!recoveryData.phone) {
+      newErrors.phone = 'El telefono es requerido';
+    } else if (recoveryData.phone.length < 10) {
+      newErrors.phone = 'Ingresa un numero valido';
     }
 
-    if (!registerData.email) {
-      newErrors.email = 'El email es requerido';
-    } else if (!/\S+@\S+\.\S+/.test(registerData.email)) {
-      newErrors.email = 'Email invalido';
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
     }
 
-    if (!registerData.password) {
-      newErrors.password = 'La contrasena es requerida';
-    } else if (registerData.password.length < 6) {
-      newErrors.password = 'La contrasena debe tener al menos 6 caracteres';
+    setIsLoading(true);
+    // Simular envío de código
+    setTimeout(() => {
+      setIsLoading(false);
+      setRecoveryStep(2);
+      setErrors({});
+    }, 1500);
+  };
+
+  const handleVerifyCode = async (e) => {
+    e.preventDefault();
+    const newErrors = {};
+
+    if (!recoveryData.code) {
+      newErrors.code = 'El codigo es requerido';
+    } else if (recoveryData.code.length !== 6) {
+      newErrors.code = 'El codigo debe tener 6 digitos';
     }
 
-    if (!registerData.confirmPassword) {
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsLoading(true);
+    // Simular verificación (cualquier código de 6 dígitos funciona)
+    setTimeout(() => {
+      setIsLoading(false);
+      setRecoveryStep(3);
+      setErrors({});
+    }, 1000);
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    const newErrors = {};
+
+    if (!recoveryData.newPassword) {
+      newErrors.newPassword = 'La contrasena es requerida';
+    } else if (recoveryData.newPassword.length < 6) {
+      newErrors.newPassword = 'Minimo 6 caracteres';
+    }
+
+    if (!recoveryData.confirmPassword) {
       newErrors.confirmPassword = 'Confirma tu contrasena';
-    } else if (registerData.password !== registerData.confirmPassword) {
+    } else if (recoveryData.newPassword !== recoveryData.confirmPassword) {
       newErrors.confirmPassword = 'Las contrasenas no coinciden';
     }
 
@@ -119,12 +160,24 @@ export default function Login() {
     }
 
     setIsLoading(true);
-
-    // Por ahora el registro no hace nada real
+    // Simular cambio de contraseña
     setTimeout(() => {
       setIsLoading(false);
-      setErrors({ general: 'El registro aun no esta disponible. Usa las credenciales de prueba.' });
-    }, 1000);
+      setRecoverySuccess(true);
+      // Reset después de 3 segundos
+      setTimeout(() => {
+        setRecoveryStep(1);
+        setRecoveryData({ phone: '', code: '', newPassword: '', confirmPassword: '' });
+        setRecoverySuccess(false);
+      }, 3000);
+    }, 1500);
+  };
+
+  const resetRecovery = () => {
+    setRecoveryStep(1);
+    setRecoveryData({ phone: '', code: '', newPassword: '', confirmPassword: '' });
+    setErrors({});
+    setRecoverySuccess(false);
   };
 
   return (
@@ -161,19 +214,34 @@ export default function Login() {
             </div>
           )}
 
-          {/* Credenciales de prueba */}
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-sm">
-            <p className="font-medium mb-1">Credenciales de prueba:</p>
-            <p>admin@petcast.com / 123456</p>
-            <p>vet@petcast.com / 123456</p>
-            <p>owner@petcast.com / 123456</p>
+          {/* Credenciales de prueba - Desplegable */}
+          <div className="mb-4">
+            <button
+              type="button"
+              onClick={() => setShowCredentials(!showCredentials)}
+              className="w-full flex items-center justify-between p-3 bg-petcast-bg-soft/50 border border-petcast-bg-soft rounded-xl text-petcast-text text-sm hover:bg-petcast-bg-soft transition-colors"
+            >
+              <span className="font-medium">Credenciales de prueba</span>
+              {showCredentials ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </button>
+            {showCredentials && (
+              <div className="mt-2 p-3 bg-petcast-bg-soft/30 border border-petcast-bg-soft rounded-xl text-sm text-petcast-text space-y-1">
+                <p><span className="font-medium">Admin:</span> admin@petcast.com / 123456</p>
+                <p><span className="font-medium">Vet:</span> vet@petcast.com / 123456</p>
+                <p><span className="font-medium">Owner:</span> owner@petcast.com / 123456</p>
+              </div>
+            )}
           </div>
 
           {/* Tabs */}
-          <Tabs defaultValue="login" className="w-full">
+          <Tabs defaultValue="login" className="w-full" onValueChange={resetRecovery}>
             <TabsList className="w-full">
               <TabsTrigger value="login">Ingresa</TabsTrigger>
-              <TabsTrigger value="register">Registrate</TabsTrigger>
+              <TabsTrigger value="recovery">Recupera</TabsTrigger>
             </TabsList>
 
             {/* Tab de Login */}
@@ -205,16 +273,23 @@ export default function Login() {
                   <label className="flex items-center cursor-pointer">
                     <input
                       type="checkbox"
-                      className="w-4 h-4 text-petcast-orange border-gray-300 rounded focus:ring-petcast-orange"
+                      className="w-4 h-4 text-petcast-heading border-gray-300 rounded focus:ring-petcast-heading"
                     />
                     <span className="ml-2 text-sm text-petcast-text">
                       Recordarme
                     </span>
                   </label>
 
-                  <a href="#" className="text-sm text-petcast-orange hover:underline">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const recoveryTab = document.querySelector('[data-state="inactive"][value="recovery"]');
+                      if (recoveryTab) recoveryTab.click();
+                    }}
+                    className="text-sm text-petcast-heading font-medium hover:underline"
+                  >
                     Olvidaste tu contrasena?
-                  </a>
+                  </button>
                 </div>
 
                 <Button
@@ -229,63 +304,168 @@ export default function Login() {
               </form>
             </TabsContent>
 
-            {/* Tab de Registro */}
-            <TabsContent value="register">
-              <form onSubmit={handleRegisterSubmit} className="space-y-5">
-                <Input
-                  label="Nombre completo"
-                  type="text"
-                  name="name"
-                  value={registerData.name}
-                  onChange={handleRegisterChange}
-                  placeholder="Juan Perez"
-                  error={errors.name}
-                  required
-                />
+            {/* Tab de Recuperación */}
+            <TabsContent value="recovery">
+              {recoverySuccess ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-petcast-heading mb-2">
+                    Contrasena actualizada
+                  </h3>
+                  <p className="text-petcast-text-light text-sm">
+                    Ya puedes iniciar sesion con tu nueva contrasena
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Indicador de pasos */}
+                  <div className="flex items-center justify-center gap-2 mb-6">
+                    {[1, 2, 3].map((step) => (
+                      <div
+                        key={step}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                          recoveryStep >= step
+                            ? 'bg-petcast-heading text-white'
+                            : 'bg-petcast-bg-soft text-petcast-text-light'
+                        }`}
+                      >
+                        {step}
+                      </div>
+                    ))}
+                  </div>
 
-                <Input
-                  label="Correo electronico"
-                  type="email"
-                  name="email"
-                  value={registerData.email}
-                  onChange={handleRegisterChange}
-                  placeholder="tu@email.com"
-                  error={errors.email}
-                  required
-                />
+                  {/* Paso 1: Telefono */}
+                  {recoveryStep === 1 && (
+                    <form onSubmit={handleSendCode} className="space-y-5">
+                      <div className="text-center mb-4">
+                        <div className="w-12 h-12 bg-petcast-bg-soft rounded-full flex items-center justify-center mx-auto mb-3">
+                          <Phone className="w-6 h-6 text-petcast-heading" />
+                        </div>
+                        <p className="text-sm text-petcast-text-light">
+                          Ingresa tu numero de telefono para recibir un codigo de verificacion
+                        </p>
+                      </div>
 
-                <Input
-                  label="Contrasena"
-                  type="password"
-                  name="password"
-                  value={registerData.password}
-                  onChange={handleRegisterChange}
-                  placeholder="******"
-                  error={errors.password}
-                  required
-                />
+                      <Input
+                        label="Numero de telefono"
+                        type="tel"
+                        name="phone"
+                        value={recoveryData.phone}
+                        onChange={handleRecoveryChange}
+                        placeholder="10 digitos"
+                        error={errors.phone}
+                        required
+                      />
 
-                <Input
-                  label="Confirmar contrasena"
-                  type="password"
-                  name="confirmPassword"
-                  value={registerData.confirmPassword}
-                  onChange={handleRegisterChange}
-                  placeholder="******"
-                  error={errors.confirmPassword}
-                  required
-                />
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        className="w-full"
+                        size="lg"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? 'Enviando...' : 'Enviar codigo'}
+                      </Button>
+                    </form>
+                  )}
 
-                <Button
-                  type="submit"
-                  variant="primary"
-                  className="w-full"
-                  size="lg"
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
-                </Button>
-              </form>
+                  {/* Paso 2: Codigo */}
+                  {recoveryStep === 2 && (
+                    <form onSubmit={handleVerifyCode} className="space-y-5">
+                      <div className="text-center mb-4">
+                        <div className="w-12 h-12 bg-petcast-bg-soft rounded-full flex items-center justify-center mx-auto mb-3">
+                          <KeyRound className="w-6 h-6 text-petcast-heading" />
+                        </div>
+                        <p className="text-sm text-petcast-text-light">
+                          Ingresa el codigo de 6 digitos que enviamos a
+                        </p>
+                        <p className="text-sm font-medium text-petcast-heading">
+                          {recoveryData.phone}
+                        </p>
+                      </div>
+
+                      <Input
+                        label="Codigo de verificacion"
+                        type="text"
+                        name="code"
+                        value={recoveryData.code}
+                        onChange={handleRecoveryChange}
+                        placeholder="123456"
+                        maxLength={6}
+                        error={errors.code}
+                        required
+                      />
+
+                      <p className="text-xs text-petcast-text-light text-center">
+                        (Simulado: cualquier codigo de 6 digitos funciona)
+                      </p>
+
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        className="w-full"
+                        size="lg"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? 'Verificando...' : 'Verificar codigo'}
+                      </Button>
+
+                      <button
+                        type="button"
+                        onClick={() => setRecoveryStep(1)}
+                        className="w-full text-sm text-petcast-text-light hover:text-petcast-heading"
+                      >
+                        Cambiar numero
+                      </button>
+                    </form>
+                  )}
+
+                  {/* Paso 3: Nueva contrasena */}
+                  {recoveryStep === 3 && (
+                    <form onSubmit={handleResetPassword} className="space-y-5">
+                      <div className="text-center mb-4">
+                        <p className="text-sm text-petcast-text-light">
+                          Crea tu nueva contrasena
+                        </p>
+                      </div>
+
+                      <Input
+                        label="Nueva contrasena"
+                        type="password"
+                        name="newPassword"
+                        value={recoveryData.newPassword}
+                        onChange={handleRecoveryChange}
+                        placeholder="Minimo 6 caracteres"
+                        error={errors.newPassword}
+                        required
+                      />
+
+                      <Input
+                        label="Confirmar contrasena"
+                        type="password"
+                        name="confirmPassword"
+                        value={recoveryData.confirmPassword}
+                        onChange={handleRecoveryChange}
+                        placeholder="Repite tu contrasena"
+                        error={errors.confirmPassword}
+                        required
+                      />
+
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        className="w-full"
+                        size="lg"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? 'Guardando...' : 'Guardar contrasena'}
+                      </Button>
+                    </form>
+                  )}
+                </>
+              )}
             </TabsContent>
           </Tabs>
         </div>
