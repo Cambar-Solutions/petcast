@@ -1,8 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Input, Button } from '../shared/components';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/shared/components/ui/tabs';
+import { useAuth } from '../shared/context/AuthContext';
 
 export default function Login() {
+  const navigate = useNavigate();
+  const { login, getRedirectPath } = useAuth();
+
   const [loginData, setLoginData] = useState({
     email: '',
     password: ''
@@ -53,13 +58,13 @@ export default function Login() {
     if (!loginData.email) {
       newErrors.email = 'El email es requerido';
     } else if (!/\S+@\S+\.\S+/.test(loginData.email)) {
-      newErrors.email = 'Email inválido';
+      newErrors.email = 'Email invalido';
     }
 
     if (!loginData.password) {
-      newErrors.password = 'La contraseña es requerida';
+      newErrors.password = 'La contrasena es requerida';
     } else if (loginData.password.length < 6) {
-      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+      newErrors.password = 'La contrasena debe tener al menos 6 caracteres';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -69,10 +74,17 @@ export default function Login() {
 
     setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      console.log('Login exitoso:', loginData);
-    }, 1500);
+    const result = await login(loginData.email, loginData.password);
+
+    if (result.success) {
+      // Redirigir segun el rol
+      const redirectPath = getRedirectPath();
+      navigate(redirectPath);
+    } else {
+      setErrors({ general: result.error });
+    }
+
+    setIsLoading(false);
   };
 
   const handleRegisterSubmit = async (e) => {
@@ -86,19 +98,19 @@ export default function Login() {
     if (!registerData.email) {
       newErrors.email = 'El email es requerido';
     } else if (!/\S+@\S+\.\S+/.test(registerData.email)) {
-      newErrors.email = 'Email inválido';
+      newErrors.email = 'Email invalido';
     }
 
     if (!registerData.password) {
-      newErrors.password = 'La contraseña es requerida';
+      newErrors.password = 'La contrasena es requerida';
     } else if (registerData.password.length < 6) {
-      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+      newErrors.password = 'La contrasena debe tener al menos 6 caracteres';
     }
 
     if (!registerData.confirmPassword) {
-      newErrors.confirmPassword = 'Confirma tu contraseña';
+      newErrors.confirmPassword = 'Confirma tu contrasena';
     } else if (registerData.password !== registerData.confirmPassword) {
-      newErrors.confirmPassword = 'Las contraseñas no coinciden';
+      newErrors.confirmPassword = 'Las contrasenas no coinciden';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -108,10 +120,11 @@ export default function Login() {
 
     setIsLoading(true);
 
+    // Por ahora el registro no hace nada real
     setTimeout(() => {
       setIsLoading(false);
-      console.log('Registro exitoso:', registerData);
-    }, 1500);
+      setErrors({ general: 'El registro aun no esta disponible. Usa las credenciales de prueba.' });
+    }, 1000);
   };
 
   return (
@@ -124,7 +137,7 @@ export default function Login() {
         }}
       >
         <div className="w-full max-w-md">
-          {/* Logo y título */}
+          {/* Logo y titulo */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-30 h-30 mb-4">
               <img
@@ -137,22 +150,37 @@ export default function Login() {
               PetCast
             </h1>
             <p className="text-gray-600">
-              Gestión veterinaria profesional
+              Gestion veterinaria profesional
             </p>
+          </div>
+
+          {/* Error general */}
+          {errors.general && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+              {errors.general}
+            </div>
+          )}
+
+          {/* Credenciales de prueba */}
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-sm">
+            <p className="font-medium mb-1">Credenciales de prueba:</p>
+            <p>admin@petcast.com / 123456</p>
+            <p>vet@petcast.com / 123456</p>
+            <p>owner@petcast.com / 123456</p>
           </div>
 
           {/* Tabs */}
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="w-full">
               <TabsTrigger value="login">Ingresa</TabsTrigger>
-              <TabsTrigger value="register">Regístrate</TabsTrigger>
+              <TabsTrigger value="register">Registrate</TabsTrigger>
             </TabsList>
 
             {/* Tab de Login */}
             <TabsContent value="login">
               <form onSubmit={handleLoginSubmit} className="space-y-5">
                 <Input
-                  label="Correo electrónico"
+                  label="Correo electronico"
                   type="email"
                   name="email"
                   value={loginData.email}
@@ -163,12 +191,12 @@ export default function Login() {
                 />
 
                 <Input
-                  label="Contraseña"
+                  label="Contrasena"
                   type="password"
                   name="password"
                   value={loginData.password}
                   onChange={handleLoginChange}
-                  placeholder="••••••••"
+                  placeholder="******"
                   error={errors.password}
                   required
                 />
@@ -185,7 +213,7 @@ export default function Login() {
                   </label>
 
                   <a href="#" className="text-sm text-blue-600 hover:underline">
-                    ¿Olvidaste tu contraseña?
+                    Olvidaste tu contrasena?
                   </a>
                 </div>
 
@@ -196,7 +224,7 @@ export default function Login() {
                   size="lg"
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+                  {isLoading ? 'Iniciando sesion...' : 'Iniciar Sesion'}
                 </Button>
               </form>
             </TabsContent>
@@ -210,13 +238,13 @@ export default function Login() {
                   name="name"
                   value={registerData.name}
                   onChange={handleRegisterChange}
-                  placeholder="Juan Pérez"
+                  placeholder="Juan Perez"
                   error={errors.name}
                   required
                 />
 
                 <Input
-                  label="Correo electrónico"
+                  label="Correo electronico"
                   type="email"
                   name="email"
                   value={registerData.email}
@@ -227,23 +255,23 @@ export default function Login() {
                 />
 
                 <Input
-                  label="Contraseña"
+                  label="Contrasena"
                   type="password"
                   name="password"
                   value={registerData.password}
                   onChange={handleRegisterChange}
-                  placeholder="••••••••"
+                  placeholder="******"
                   error={errors.password}
                   required
                 />
 
                 <Input
-                  label="Confirmar contraseña"
+                  label="Confirmar contrasena"
                   type="password"
                   name="confirmPassword"
                   value={registerData.confirmPassword}
                   onChange={handleRegisterChange}
-                  placeholder="••••••••"
+                  placeholder="******"
                   error={errors.confirmPassword}
                   required
                 />
