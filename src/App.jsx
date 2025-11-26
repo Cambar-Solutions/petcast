@@ -19,6 +19,7 @@ import {
 import {
   VetDashboard,
   Mascotas,
+  MascotaDetalle,
   Duenos,
   Citas,
   FichaMedica,
@@ -124,6 +125,16 @@ function App() {
               <ProtectedRoute allowedRoles={['VET']}>
                 <MainLayout>
                   <Mascotas />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/vet/mascota/:id"
+            element={
+              <ProtectedRoute allowedRoles={['VET']}>
+                <MainLayout>
+                  <MascotaDetalle />
                 </MainLayout>
               </ProtectedRoute>
             }

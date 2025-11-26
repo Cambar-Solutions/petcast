@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Edit, Trash2, QrCode, Eye } from 'lucide-react';
 import { Button, SearchBar, ConfirmDialog } from '@/shared/components';
 import { MascotaForm } from '../components';
 
 export default function Mascotas() {
+  const navigate = useNavigate();
   const [mascotas, setMascotas] = useState([
     { id: 1, name: 'Max', especie: 'Perro', raza: 'Labrador', dueno: 'Maria Garcia', edad: '3 anos' },
     { id: 2, name: 'Luna', especie: 'Gato', raza: 'Siames', dueno: 'Carlos Lopez', edad: '2 anos' },
@@ -113,7 +115,10 @@ export default function Mascotas() {
                 </span>
               </div>
               <div className="flex gap-1">
-                <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                <button
+                  onClick={() => navigate(`/vet/mascota/${mascota.id}`)}
+                  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+                >
                   <Eye className="w-4 h-4" />
                 </button>
                 <button

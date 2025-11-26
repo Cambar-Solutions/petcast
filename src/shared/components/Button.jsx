@@ -15,10 +15,10 @@ export default function Button({
   const baseStyles = 'font-semibold rounded-lg transition-colors duration-200';
 
   const variants = {
-    primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-    secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-800',
+    primary: 'bg-petcast-heading hover:bg-petcast-text text-white',
+    secondary: 'bg-petcast-bg-soft hover:bg-petcast-bg text-petcast-heading',
     danger: 'bg-red-600 hover:bg-red-700 text-white',
-    outline: 'border-2 border-blue-600 text-blue-600 hover:bg-blue-50',
+    outline: 'border-2 border-petcast-heading text-petcast-heading hover:bg-petcast-bg-soft',
   };
 
   const sizes = {

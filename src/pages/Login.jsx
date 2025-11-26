@@ -146,10 +146,10 @@ export default function Login() {
                 className="w-full h-full object-contain"
               />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-petcast-heading mb-2">
               PetCast
             </h1>
-            <p className="text-gray-600">
+            <p className="text-petcast-text">
               Gestion veterinaria profesional
             </p>
           </div>
@@ -205,14 +205,14 @@ export default function Login() {
                   <label className="flex items-center cursor-pointer">
                     <input
                       type="checkbox"
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-petcast-orange border-gray-300 rounded focus:ring-petcast-orange"
                     />
-                    <span className="ml-2 text-sm text-gray-700">
+                    <span className="ml-2 text-sm text-petcast-text">
                       Recordarme
                     </span>
                   </label>
 
-                  <a href="#" className="text-sm text-blue-600 hover:underline">
+                  <a href="#" className="text-sm text-petcast-orange hover:underline">
                     Olvidaste tu contrasena?
                   </a>
                 </div>

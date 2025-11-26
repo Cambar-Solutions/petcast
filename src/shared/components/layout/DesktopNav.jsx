@@ -23,14 +23,22 @@ const DesktopNav = ({ tabs, activeTab }) => {
           <button
             key={tab.id}
             onClick={() => navigate(tab.path)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2 cursor-pointer ${
+            className={`relative px-4 py-2 text-sm font-medium transition-all duration-200 flex flex-col items-center gap-1 cursor-pointer ${
               isActive
-                ? 'bg-primary text-primary-foreground shadow-md'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                ? 'text-petcast-heading'
+                : 'text-petcast-text hover:text-petcast-heading hover:bg-petcast-bg-soft rounded-xl'
             }`}
           >
-            <IconComponent className="w-4 h-4" />
-            {tab.label}
+            <div className="flex items-center gap-2">
+              <IconComponent className="w-4 h-4" />
+              {tab.label}
+            </div>
+            {/* Línea activa */}
+            <span
+              className={`absolute bottom-1 left-1/2 -translate-x-1/2 h-0.5 bg-petcast-heading rounded-full transition-all duration-200 ${
+                isActive ? 'w-8' : 'w-0'
+              }`}
+            />
           </button>
         );
       })}

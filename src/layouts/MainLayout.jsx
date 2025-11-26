@@ -6,7 +6,10 @@ export default function MainLayout({ children }) {
   const tabs = getTabsForRole();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div
+      className="min-h-screen"
+      style={{ background: 'var(--gradient-petcast-bg)' }}
+    >
       <Navbar user={user} tabs={tabs} />
 
       {/* Contenido principal con padding para el navbar inferior en mobile */}
