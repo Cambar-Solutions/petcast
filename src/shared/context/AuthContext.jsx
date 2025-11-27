@@ -90,25 +90,22 @@ export const AuthProvider = ({ children }) => {
     switch (user.role) {
       case 'ADMIN':
         return [
-          { id: 'dashboard', label: 'Inicio', path: '/admin', icon: 'Home' },
           { id: 'veterinarios', label: 'Veterinarios', path: '/admin/veterinarios', icon: 'Users' },
+          { id: 'perfil', label: 'Perfil', path: '/admin', icon: 'Home' },
           { id: 'estadisticas', label: 'Estadisticas', path: '/admin/estadisticas', icon: 'BarChart3' },
-          { id: 'perfil', label: 'Perfil', path: '/admin/perfil', icon: 'User' },
         ];
       case 'VET':
         return [
-          { id: 'dashboard', label: 'Inicio', path: '/vet', icon: 'Home' },
           { id: 'mascotas', label: 'Mascotas', path: '/vet/mascotas', icon: 'PawPrint' },
           { id: 'duenos', label: 'Duenos', path: '/vet/duenos', icon: 'Users' },
+          { id: 'perfil', label: 'Perfil', path: '/vet', icon: 'Home' },
           { id: 'citas', label: 'Citas', path: '/vet/citas', icon: 'Calendar' },
-          { id: 'perfil', label: 'Perfil', path: '/vet/perfil', icon: 'User' },
         ];
       case 'OWNER':
         return [
-          { id: 'dashboard', label: 'Inicio', path: '/owner', icon: 'Home' },
           { id: 'mascotas', label: 'Mis Mascotas', path: '/owner/mascotas', icon: 'PawPrint' },
+          { id: 'perfil', label: 'Perfil', path: '/owner', icon: 'Home' },
           { id: 'citas', label: 'Mis Citas', path: '/owner/citas', icon: 'Calendar' },
-          { id: 'perfil', label: 'Perfil', path: '/owner/perfil', icon: 'User' },
         ];
       default:
         return [];

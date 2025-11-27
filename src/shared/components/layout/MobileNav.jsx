@@ -13,8 +13,8 @@ const iconMap = {
 const MobileNav = ({ tabs, activeTab }) => {
   const navigate = useNavigate();
 
-  // Filtrar el tab de perfil (está en el navbar superior)
-  const filteredTabs = tabs.filter(tab => !tab.path.includes('perfil'));
+  // Filtrar el tab de perfil (está en el navbar superior en mobile)
+  const filteredTabs = tabs.filter(tab => tab.id !== 'perfil');
 
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 safe-area-bottom">

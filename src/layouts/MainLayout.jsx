@@ -7,14 +7,14 @@ export default function MainLayout({ children }) {
 
   return (
     <div
-      className="min-h-screen"
+      className="min-h-[100dvh] flex flex-col"
       style={{ background: 'var(--gradient-petcast-bg)' }}
     >
       <Navbar user={user} tabs={tabs} />
 
-      {/* Contenido principal con padding para el navbar inferior en mobile */}
-      <main className="pb-24 lg:pb-8">
-        <div className="max-w-6xl mx-auto px-4 py-6">
+      {/* Contenido principal - se expande para llenar el espacio */}
+      <main className="flex-1 flex flex-col">
+        <div className="max-w-6xl w-full mx-auto px-4 pt-6 lg:pt-4 pb-0 flex-1 flex flex-col">
           {children}
         </div>
       </main>

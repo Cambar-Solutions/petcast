@@ -5,7 +5,6 @@ export { default as OwnerDashboard } from './views/OwnerDashboard';
 export { default as MisMascotas } from './views/MisMascotas';
 export { default as DetalleMascota } from './views/DetalleMascota';
 export { default as MisCitas } from './views/MisCitas';
-export { default as OwnerPerfil } from './views/OwnerPerfil';
 
 // Componentes
 // export { default as OwnerProfile } from './components/OwnerProfile';

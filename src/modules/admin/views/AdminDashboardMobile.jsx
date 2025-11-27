@@ -1,10 +1,8 @@
-import { ProfileCard, ProfileCardMobile, ActividadRecienteMobile } from '@/shared/components';
+import { ProfileCardMobile, ActividadRecienteMobile } from '@/shared/components';
 import { useAuth } from '@/shared/context/AuthContext';
-import useIsMobile from '@/shared/hooks/useIsMobile';
 
-export default function AdminDashboard() {
+export default function AdminDashboardMobile() {
   const { user, logout } = useAuth();
-  const isMobile = useIsMobile();
 
   const actividadReciente = [
     { id: 1, texto: 'Agregaste un nuevo veterinario', tiempo: 'Hace 2 horas' },
@@ -14,19 +12,10 @@ export default function AdminDashboard() {
     { id: 5, texto: 'Generaste reporte mensual', tiempo: 'Hace 1 semana' },
   ];
 
-  if (isMobile) {
-    return (
-      <div className="flex flex-col flex-1 pb-24">
-        <ProfileCardMobile user={user} onLogout={logout} />
-        <ActividadRecienteMobile actividad={actividadReciente} />
-      </div>
-    );
-  }
-
   return (
-    <ProfileCard
-      user={user}
-      actividad={actividadReciente}
-    />
+    <div className="flex flex-col flex-1">
+      <ProfileCardMobile user={user} onLogout={logout} />
+      <ActividadRecienteMobile actividad={actividadReciente} />
+    </div>
   );
 }

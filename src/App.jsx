@@ -13,7 +13,6 @@ import {
   AdminDashboard,
   Veterinarios,
   Estadisticas,
-  AdminPerfil,
 } from '@/modules/admin';
 
 import {
@@ -23,7 +22,6 @@ import {
   Duenos,
   Citas,
   FichaMedica,
-  VetPerfil,
 } from '@/modules/vet';
 
 import {
@@ -31,7 +29,6 @@ import {
   MisMascotas,
   DetalleMascota,
   MisCitas,
-  OwnerPerfil,
 } from '@/modules/owner';
 
 // Layout
@@ -93,16 +90,6 @@ function App() {
               <ProtectedRoute allowedRoles={['ADMIN']}>
                 <MainLayout>
                   <Estadisticas />
-                </MainLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/perfil"
-            element={
-              <ProtectedRoute allowedRoles={['ADMIN']}>
-                <MainLayout>
-                  <AdminPerfil />
                 </MainLayout>
               </ProtectedRoute>
             }
@@ -169,16 +156,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/vet/perfil"
-            element={
-              <ProtectedRoute allowedRoles={['VET']}>
-                <MainLayout>
-                  <VetPerfil />
-                </MainLayout>
-              </ProtectedRoute>
-            }
-          />
 
           {/* Rutas de Owner */}
           <Route
@@ -217,16 +194,6 @@ function App() {
               <ProtectedRoute allowedRoles={['OWNER']}>
                 <MainLayout>
                   <MisCitas />
-                </MainLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/owner/perfil"
-            element={
-              <ProtectedRoute allowedRoles={['OWNER']}>
-                <MainLayout>
-                  <OwnerPerfil />
                 </MainLayout>
               </ProtectedRoute>
             }

@@ -300,7 +300,7 @@ export default function Login() {
                   size="lg"
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Iniciando sesion...' : 'Iniciar Sesion'}
+                  {isLoading ? 'Iniciando sesion...' : 'Ingresar'}
                 </Button>
               </form>
             </TabsContent>
