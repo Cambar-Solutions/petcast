@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Phone, Mail, Loader2 } from 'lucide-react';
 import { Button, SearchBar, ConfirmDialog } from '@/shared/components';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
 import { DuenoForm } from '../components';
 import { useDuenos, useCreateUser, useUpdateUser, useDeleteUser, usePets } from '@/shared/hooks';
 
@@ -130,7 +131,7 @@ export default function Duenos() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Duenos</h1>
@@ -184,18 +185,32 @@ export default function Duenos() {
                   <p className="text-xs text-gray-500">mascotas</p>
                 </div>
                 <div className="flex gap-1">
-                  <button
-                    onClick={() => handleOpenEdit(dueno)}
-                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleOpenDeleteConfirm(dueno)}
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => handleOpenEdit(dueno)}
+                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg cursor-pointer"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Editar</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => handleOpenDeleteConfirm(dueno)}
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg cursor-pointer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Eliminar</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
               </div>
             </div>

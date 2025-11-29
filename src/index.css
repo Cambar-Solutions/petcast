@@ -154,6 +154,18 @@
   }
 }
 
+/* ========================================
+   Breathing Background Animation
+   ======================================== */
+@keyframes breathe {
+  0%, 100% {
+    background: linear-gradient(180deg, #FFFFFF 0%, #F0F9FF 40%, #D0EDFE 100%);
+  }
+  50% {
+    background: linear-gradient(180deg, #F0F9FF 0%, #D0EDFE 40%, #7DD3FC 100%);
+  }
+}
+
 .animated-border::before {
   content: '';
   position: absolute;

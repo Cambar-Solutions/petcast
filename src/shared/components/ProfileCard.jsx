@@ -4,7 +4,7 @@ import { Pencil, ArrowLeft, User, Lock } from 'lucide-react';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { Button } from '@/shared/components/ui/button';
-import ActividadReciente from './ActividadReciente';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
 
 const frases = [
   '"El mejor médico del mundo es el veterinario. Él no puede preguntar a sus pacientes qué les pasa; simplemente tiene que saberlo."',
@@ -14,7 +14,7 @@ const frases = [
   '"La grandeza de una nación puede juzgarse por la forma en que trata a sus animales."',
 ];
 
-export default function ProfileCard({ user, actividad = [] }) {
+export default function ProfileCard({ user }) {
   // Estados de vista: 'profile' | 'editProfile' | 'changePassword'
   const [view, setView] = useState('profile');
   const [currentFrase, setCurrentFrase] = useState(0);
@@ -107,7 +107,11 @@ export default function ProfileCard({ user, actividad = [] }) {
   };
 
   const handleBack = () => {
-    setView('profile');
+    if (view === 'changePassword') {
+      setView('editProfile');
+    } else {
+      setView('profile');
+    }
     setFormData({ name: '', email: '' });
     setPasswordData({ newPassword: '', confirmPassword: '' });
     setErrors({});
@@ -148,59 +152,78 @@ export default function ProfileCard({ user, actividad = [] }) {
   const hasPasswordChanges = passwordData.newPassword !== '' && passwordData.confirmPassword !== '';
 
   return (
-    <div className="flex flex-col items-center flex-1 pt-8">
-      {/* Avatar */}
-      <div className="w-28 h-28 bg-gray-100 rounded-full flex items-center justify-center border-4 border-white shadow-xl mb-5">
-        <User className="w-12 h-12 text-gray-400" />
-      </div>
+    <div className="flex flex-col items-center justify-center flex-1 pt-8 pb-8 overflow-hidden">
+      <AnimatePresence mode="wait">
+        {view === 'profile' && (
+          <motion.div
+            key="header"
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -100 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="flex flex-col items-center w-full"
+          >
+            {/* Logo */}
+            <div className="w-50 h-50 flex items-center justify-center mb-6">
+              <img
+                src="/logopestcast.png"
+                alt="PetCast Logo"
+                className="w-full h-full object-contain drop-shadow-lg"
+              />
+            </div>
 
-      {/* Nombre, Email y Botón Editar */}
-      <div className="flex items-center gap-3 mb-8">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold text-gray-900">{user?.name || 'Usuario'}</h2>
-          <p className="text-gray-500">{user?.email}</p>
-        </div>
-        <button
-          onClick={() => setView('editProfile')}
-          className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-          title="Editar perfil"
-          aria-label="Editar perfil"
-        >
-          <Pencil className="w-4 h-4" />
-        </button>
-      </div>
+            {/* Nombre, Email y Botón Editar */}
+            <div className="relative flex items-center justify-center mb-0 bg-white/50 p-6 rounded-2xl shadow-sm w-100">
+              {/* Botón editar en esquina superior derecha */}
+              <div className="absolute top-3 right-3">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setView('editProfile')}
+                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                      aria-label="Editar perfil"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Editar Perfil</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+
+              {/* Información del usuario centrada */}
+              <div className="text-center">
+                <h2 className="text-2xl font-semibold text-gray-900">{user?.name || 'Usuario'}</h2>
+                <p className="text-gray-500">{user?.email}</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Contenedor de frases / formulario de edición */}
-      <div className="w-full max-w-5xl flex-1 flex flex-col">
+      <div className="w-full max-w-5xl flex-1 flex flex-col justify-center">
         <AnimatePresence mode="wait">
           {view === 'profile' && (
-            // Vista de frases + actividad reciente
+            // Vista de frases centradas con animación
             <motion.div
-              key="frases"
+              key={currentFrase}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="flex-1 flex flex-col justify-between"
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="flex items-center justify-center"
             >
-              {/* Frase animada - altura fija para evitar desplazamiento */}
-              <div className="text-center px-4 min-h-[80px] flex items-center justify-center flex-shrink-0">
-                <AnimatePresence mode="wait">
-                  <motion.p
-                    key={currentFrase}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.5 }}
-                    className="text-gray-600 italic leading-relaxed text-lg"
-                  >
-                    {frases[currentFrase]}
-                  </motion.p>
-                </AnimatePresence>
+              {/* Frase centrada */}
+              <div className="text-center px-8 max-w-3xl">
+                <p
+                  className="italic font-semibold leading-relaxed text-2xl font-['Open_Sans'] bg-gradient-to-r from-orange-500 via-blue-400 to-blue-800 bg-clip-text text-transparent"
+                  style={{ fontFamily: "'Open Sans', sans-serif" }}
+                >
+                  {frases[currentFrase]}
+                </p>
               </div>
-
-              {/* Actividad reciente */}
-              <ActividadReciente actividad={actividad} />
             </motion.div>
           )}
 
@@ -208,17 +231,17 @@ export default function ProfileCard({ user, actividad = [] }) {
             // Vista de edición de perfil
             <motion.div
               key="editProfile"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="p-10"
+              exit={{ opacity: 0, x: -100 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="p-10 w-full"
             >
               {/* Barra superior */}
               <div className="flex items-center justify-between mb-8">
                 <button
                   onClick={handleBack}
-                  className="flex items-center gap-2 px-3 py-2 -ml-3 text-gray-500 hover:text-gray-700 rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 -ml-3 text-gray-500 hover:text-gray-700 rounded-lg transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span className="text-sm">Regresar</span>
@@ -227,7 +250,7 @@ export default function ProfileCard({ user, actividad = [] }) {
                   type="button"
                   variant="outline"
                   onClick={() => setView('changePassword')}
-                  className="rounded-full text-sm"
+                  className="rounded-full text-sm cursor-pointer"
                 >
                   Cambiar contraseña
                 </Button>
@@ -298,7 +321,7 @@ export default function ProfileCard({ user, actividad = [] }) {
                   <Button
                     type="submit"
                     disabled={!hasProfileChanges}
-                    className="px-8 py-2 rounded-full bg-gray-700 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                    className="px-8 py-2 rounded-full bg-gray-700 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer"
                   >
                     Guardar
                   </Button>
@@ -311,29 +334,21 @@ export default function ProfileCard({ user, actividad = [] }) {
             // Vista de cambio de contraseña
             <motion.div
               key="changePassword"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="p-10"
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 100 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="p-10 w-full"
             >
               {/* Barra superior */}
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex items-start mb-8">
                 <button
                   onClick={handleBack}
-                  className="flex items-center gap-2 px-3 py-2 -ml-3 text-gray-500 hover:text-gray-700 rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 -ml-3 text-gray-500 hover:text-gray-700 rounded-lg transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span className="text-sm">Regresar</span>
                 </button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setView('editProfile')}
-                  className="rounded-full text-sm"
-                >
-                  Editar perfil
-                </Button>
               </div>
 
               {/* Título y descripción */}

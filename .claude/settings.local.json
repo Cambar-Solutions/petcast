@@ -11,7 +11,11 @@
       "Bash(npm run build:*)",
       "Bash(npm run build:user:*)",
       "Bash(npm run build:pet:*)",
-      "Bash(dir /b \"C:\\ERICK\\UTEZ\\7TO\\PETCAST\\petcast-web-app\\src\\modules\\vet\\views\")"
+      "Bash(dir /b \"C:\\ERICK\\UTEZ\\7TO\\PETCAST\\petcast-web-app\\src\\modules\\vet\\views\")",
+      "Bash(tree:*)",
+      "Bash(cat:*)",
+      "Bash(xargs ls:*)",
+      "Bash(git -C /c/petcast log:*)"
     ],
     "deny": [],
     "ask": []

@@ -42,7 +42,7 @@ export default function AdminDashboard() {
 
   if (isMobile) {
     return (
-      <div className="flex flex-col flex-1 pb-24">
+      <div className="flex flex-col flex-1 pb-32">
         <ProfileCardMobile user={user} onLogout={logout} />
         <ActividadRecienteMobile actividad={actividadReciente} />
       </div>
@@ -52,7 +52,6 @@ export default function AdminDashboard() {
   return (
     <ProfileCard
       user={user}
-      actividad={actividadReciente}
     />
   );
 }

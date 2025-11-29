@@ -13,7 +13,7 @@ export default function VetDashboardMobile() {
   ];
 
   return (
-    <div className="flex flex-col flex-1">
+    <div className="flex flex-col flex-1 pb-32">
       <ProfileCardMobile user={user} onLogout={logout} />
       <ActividadRecienteMobile actividad={actividadReciente} />
     </div>
