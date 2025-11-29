@@ -2,23 +2,21 @@ import axios from 'axios';
 
 /**
  * Configuración base de los servicios del backend
- * Cada servicio corre en un puerto diferente (arquitectura SBA)
+ * Cada servicio corre en un dominio diferente (arquitectura SBA)
  */
-const API_PORTS = {
-  USER: 4201,
-  PET: 4202,
-  APPOINTMENT: 4203,
-  STATISTICS: 4204,
+const API_URLS = {
+  USER: 'https://api.user.blocki.tech',
+  PET: 'https://api.pet.blocki.tech',
+  APPOINTMENT: 'https://api.appointment.blocki.tech',
+  STATISTICS: 'https://api.stat.blocki.tech',
 };
-
-const BASE_URL = 'http://localhost';
 
 /**
  * Crea una instancia de axios configurada para un servicio específico
  */
-const createApiInstance = (port) => {
+const createApiInstance = (baseURL) => {
   const instance = axios.create({
-    baseURL: `${BASE_URL}:${port}/api`,
+    baseURL,
     headers: {
       'Content-Type': 'application/json',
     },
@@ -60,10 +58,10 @@ const createApiInstance = (port) => {
 };
 
 // Instancias de API para cada servicio
-export const userApi = createApiInstance(API_PORTS.USER);
-export const petApi = createApiInstance(API_PORTS.PET);
-export const appointmentApi = createApiInstance(API_PORTS.APPOINTMENT);
-export const statisticsApi = createApiInstance(API_PORTS.STATISTICS);
+export const userApi = createApiInstance(API_URLS.USER);
+export const petApi = createApiInstance(API_URLS.PET);
+export const appointmentApi = createApiInstance(API_URLS.APPOINTMENT);
+export const statisticsApi = createApiInstance(API_URLS.STATISTICS);
 
 export default {
   userApi,
