@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Phone, Mail } from 'lucide-react';
+import { Plus, Edit, Trash2, Phone, Mail, Loader2 } from 'lucide-react';
 import { Button, SearchBar, ConfirmDialog } from '@/shared/components';
 import { DuenoForm } from '../components';
+import { useDuenos, useCreateUser, useUpdateUser, useDeleteUser, usePets } from '@/shared/hooks';
 
 export default function Duenos() {
-  const [duenos, setDuenos] = useState([
-    { id: 1, name: 'Maria Garcia', email: 'maria@email.com', telefono: '+52 123 456 7890', mascotas: 2 },
-    { id: 2, name: 'Carlos Lopez', email: 'carlos@email.com', telefono: '+52 123 456 7891', mascotas: 1 },
-    { id: 3, name: 'Ana Martinez', email: 'ana@email.com', telefono: '+52 123 456 7892', mascotas: 3 },
-    { id: 4, name: 'Pedro Sanchez', email: 'pedro@email.com', telefono: '+52 123 456 7893', mascotas: 1 },
-  ]);
+  // Hooks de TanStack Query
+  const { data: duenos = [], isLoading, error } = useDuenos();
+  const { data: mascotas = [] } = usePets();
+  const createUser = useCreateUser();
+  const updateUser = useUpdateUser();
+  const deleteUser = useDeleteUser();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -40,14 +41,29 @@ export default function Duenos() {
     setSelectedDueno(null);
   };
 
-  const handleSubmit = (formData) => {
-    if (selectedDueno) {
-      setDuenos((prev) =>
-        prev.map((d) => (d.id === selectedDueno.id ? { ...d, ...formData } : d))
-      );
-    } else {
-      const newDueno = { id: Date.now(), mascotas: 0, ...formData };
-      setDuenos((prev) => [...prev, newDueno]);
+  const handleSubmit = async (formData) => {
+    try {
+      const userData = {
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        correoElectronico: formData.email,
+        telefono: formData.telefono,
+        direccion: formData.direccion || null,
+      };
+
+      if (selectedDueno) {
+        await updateUser.mutateAsync({ id: selectedDueno.id, ...userData });
+      } else {
+        await createUser.mutateAsync({
+          ...userData,
+          contrasena: '123456',
+          rol: 'DUENO',
+          estado: 'ACTIVO',
+        });
+      }
+      handleCloseForm();
+    } catch (err) {
+      console.error('Error al guardar dueño:', err);
     }
   };
 
@@ -56,10 +72,15 @@ export default function Duenos() {
     setIsConfirmOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (duenoToDelete) {
-      setDuenos((prev) => prev.filter((d) => d.id !== duenoToDelete.id));
-      setDuenoToDelete(null);
+      try {
+        await deleteUser.mutateAsync(duenoToDelete.id);
+        setDuenoToDelete(null);
+        setIsConfirmOpen(false);
+      } catch (err) {
+        console.error('Error al eliminar dueño:', err);
+      }
     }
   };
 
@@ -68,11 +89,45 @@ export default function Duenos() {
     setDuenoToDelete(null);
   };
 
-  const filteredDuenos = duenos.filter(
+  // Contar mascotas por dueño
+  const countMascotasByDueno = (duenoId) => {
+    return mascotas.filter(m => m.duenoId === duenoId).length;
+  };
+
+  // Mapear datos del backend al frontend
+  const mappedDuenos = duenos.map((d) => ({
+    id: d.id,
+    name: `${d.nombre} ${d.apellido}`.trim(),
+    email: d.correoElectronico,
+    telefono: d.telefono || 'Sin teléfono',
+    direccion: d.direccion,
+    mascotas: countMascotasByDueno(d.id),
+  }));
+
+  const filteredDuenos = mappedDuenos.filter(
     (dueno) =>
       dueno.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       dueno.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Estado de carga
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  // Estado de error
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-500">Error al cargar dueños</p>
+        <p className="text-gray-500 text-sm">{error.message}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -81,7 +136,12 @@ export default function Duenos() {
           <h1 className="text-2xl font-bold text-gray-900">Duenos</h1>
           <p className="text-gray-600">Gestiona los duenos de mascotas</p>
         </div>
-        <Button variant="primary" className="flex items-center gap-2" onClick={handleOpenCreate}>
+        <Button
+          variant="primary"
+          className="flex items-center gap-2"
+          onClick={handleOpenCreate}
+          disabled={createUser.isPending}
+        >
           <Plus className="w-4 h-4" />
           Nuevo Dueno
         </Button>
@@ -156,6 +216,7 @@ export default function Duenos() {
         onSubmit={handleSubmit}
         dueno={selectedDueno}
         isMobile={isMobile}
+        isLoading={createUser.isPending || updateUser.isPending}
       />
 
       {/* Confirm Delete Dialog */}
@@ -168,6 +229,7 @@ export default function Duenos() {
         confirmText="Eliminar"
         cancelText="Cancelar"
         variant="danger"
+        isLoading={deleteUser.isPending}
       />
     </div>
   );

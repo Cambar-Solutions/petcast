@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
 import { Button, SearchBar, ConfirmDialog } from '@/shared/components';
 import { VeterinarioForm } from '../components';
+import { useVeterinarios, useCreateUser, useUpdateUser, useDeleteUser } from '@/shared/hooks';
 
 export default function Veterinarios() {
-  const [veterinarios, setVeterinarios] = useState([
-    { id: 1, name: 'Dr. Carlos Martinez', email: 'carlos@petcast.com', especialidad: 'General', status: 'Activo' },
-    { id: 2, name: 'Dra. Ana Lopez', email: 'ana@petcast.com', especialidad: 'Cirugia', status: 'Activo' },
-    { id: 3, name: 'Dr. Pedro Sanchez', email: 'pedro@petcast.com', especialidad: 'Dermatologia', status: 'Inactivo' },
-  ]);
+  // Hooks de TanStack Query
+  const { data: veterinarios = [], isLoading, error } = useVeterinarios();
+  const createUser = useCreateUser();
+  const updateUser = useUpdateUser();
+  const deleteUser = useDeleteUser();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedVet, setSelectedVet] = useState(null);
@@ -41,19 +42,28 @@ export default function Veterinarios() {
     setSelectedVet(null);
   };
 
-  const handleSubmit = (formData) => {
-    if (selectedVet) {
-      // Editar
-      setVeterinarios((prev) =>
-        prev.map((v) => (v.id === selectedVet.id ? { ...v, ...formData } : v))
-      );
-    } else {
-      // Crear
-      const newVet = {
-        id: Date.now(),
-        ...formData,
+  const handleSubmit = async (formData) => {
+    try {
+      const userData = {
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        correoElectronico: formData.email,
+        especialidad: formData.especialidad,
+        estado: formData.status === 'Activo' ? 'ACTIVO' : 'INACTIVO',
       };
-      setVeterinarios((prev) => [...prev, newVet]);
+
+      if (selectedVet) {
+        await updateUser.mutateAsync({ id: selectedVet.id, ...userData });
+      } else {
+        await createUser.mutateAsync({
+          ...userData,
+          contrasena: '123456',
+          rol: 'VETERINARIO',
+        });
+      }
+      handleCloseForm();
+    } catch (err) {
+      console.error('Error al guardar veterinario:', err);
     }
   };
 
@@ -62,10 +72,15 @@ export default function Veterinarios() {
     setIsConfirmOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (vetToDelete) {
-      setVeterinarios((prev) => prev.filter((v) => v.id !== vetToDelete.id));
-      setVetToDelete(null);
+      try {
+        await deleteUser.mutateAsync(vetToDelete.id);
+        setVetToDelete(null);
+        setIsConfirmOpen(false);
+      } catch (err) {
+        console.error('Error al eliminar veterinario:', err);
+      }
     }
   };
 
@@ -74,12 +89,40 @@ export default function Veterinarios() {
     setVetToDelete(null);
   };
 
-  const filteredVets = veterinarios.filter(
+  // Mapear datos del backend al formato del frontend para mostrar
+  const mappedVeterinarios = veterinarios.map((vet) => ({
+    id: vet.id,
+    name: `${vet.nombre} ${vet.apellido}`.trim(),
+    email: vet.correoElectronico,
+    especialidad: vet.especialidad || 'General',
+    status: vet.estado === 'ACTIVO' ? 'Activo' : 'Inactivo',
+  }));
+
+  const filteredVets = mappedVeterinarios.filter(
     (vet) =>
       vet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vet.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vet.especialidad.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Estado de carga
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  // Estado de error
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-500">Error al cargar veterinarios</p>
+        <p className="text-gray-500 text-sm">{error.message}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -92,6 +135,7 @@ export default function Veterinarios() {
           variant="primary"
           className="flex items-center gap-2"
           onClick={handleOpenCreate}
+          disabled={createUser.isPending}
         >
           <Plus className="w-4 h-4" />
           Nuevo Veterinario
@@ -171,6 +215,7 @@ export default function Veterinarios() {
         onSubmit={handleSubmit}
         veterinario={selectedVet}
         isMobile={isMobile}
+        isLoading={createUser.isPending || updateUser.isPending}
       />
 
       {/* Confirm Delete Dialog */}
@@ -183,6 +228,7 @@ export default function Veterinarios() {
         confirmText="Eliminar"
         cancelText="Cancelar"
         variant="danger"
+        isLoading={deleteUser.isPending}
       />
     </div>
   );

@@ -17,11 +17,13 @@ export default function DuenoForm({
   onSubmit,
   dueno = null,
   isMobile = false,
+  isLoading = false,
 }) {
   const isEditing = !!dueno;
 
   const [formData, setFormData] = useState({
-    name: '',
+    nombre: '',
+    apellido: '',
     email: '',
     telefono: '',
     direccion: '',
@@ -29,15 +31,22 @@ export default function DuenoForm({
 
   useEffect(() => {
     if (dueno) {
+      // Separar nombre completo en nombre y apellido
+      const nameParts = (dueno.name || '').split(' ');
+      const nombre = nameParts[0] || '';
+      const apellido = nameParts.slice(1).join(' ') || '';
+
       setFormData({
-        name: dueno.name || '',
+        nombre: nombre,
+        apellido: apellido,
         email: dueno.email || '',
         telefono: dueno.telefono || '',
         direccion: dueno.direccion || '',
       });
     } else {
       setFormData({
-        name: '',
+        nombre: '',
+        apellido: '',
         email: '',
         telefono: '',
         direccion: '',
@@ -53,26 +62,41 @@ export default function DuenoForm({
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(formData);
-    onClose();
   };
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="name" className="flex items-center gap-2">
-          <User className="w-4 h-4 text-gray-400" />
-          Nombre completo
-        </Label>
-        <Input
-          id="name"
-          name="name"
-          type="text"
-          value={formData.name}
-          onChange={handleChange}
-          placeholder="Maria Garcia"
-          className="rounded-xl"
-          required
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="nombre" className="flex items-center gap-2">
+            <User className="w-4 h-4 text-gray-400" />
+            Nombre
+          </Label>
+          <Input
+            id="nombre"
+            name="nombre"
+            type="text"
+            value={formData.nombre}
+            onChange={handleChange}
+            placeholder="Maria"
+            className="rounded-xl"
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="apellido">Apellido</Label>
+          <Input
+            id="apellido"
+            name="apellido"
+            type="text"
+            value={formData.apellido}
+            onChange={handleChange}
+            placeholder="Garcia"
+            className="rounded-xl"
+            required
+          />
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -130,8 +154,8 @@ export default function DuenoForm({
           <Button type="button" variant="secondary" onClick={onClose}>
             Cancelar
           </Button>
-          <Button type="submit" variant="primary">
-            {isEditing ? 'Guardar Cambios' : 'Crear Dueno'}
+          <Button type="submit" variant="primary" disabled={isLoading}>
+            {isLoading ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Crear Dueno'}
           </Button>
         </div>
       )}
@@ -154,8 +178,14 @@ export default function DuenoForm({
             <Button type="button" variant="secondary" onClick={onClose} className="w-full">
               Cancelar
             </Button>
-            <Button type="submit" variant="primary" onClick={handleSubmit} className="w-full">
-              {isEditing ? 'Guardar Cambios' : 'Crear Dueno'}
+            <Button
+              type="submit"
+              variant="primary"
+              onClick={handleSubmit}
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Crear Dueno'}
             </Button>
           </DrawerFooter>
         </DrawerContent>

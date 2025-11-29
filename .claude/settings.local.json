@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"C:\\ERICK\\UTEZ\\7TO\\PETCAST\" /b)",
+      "Bash(find:*)",
+      "Bash(xargs cat:*)",
+      "Bash(npm install)",
+      "Bash(npm run build:all:*)",
+      "Bash(node -e:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run build:user:*)",
+      "Bash(npm run build:pet:*)",
+      "Bash(dir /b \"C:\\ERICK\\UTEZ\\7TO\\PETCAST\\petcast-web-app\\src\\modules\\vet\\views\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

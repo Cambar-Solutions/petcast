@@ -1,65 +1,85 @@
-import { createContext, useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { createContext, useContext, useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { userApi } from '@/shared/services/api';
 
 const AuthContext = createContext(null);
 
-// Usuarios mock para pruebas
-const MOCK_USERS = [
-  {
-    id: 1,
-    email: 'admin@petcast.com',
-    password: '123456',
-    name: 'Administrador',
-    role: 'ADMIN',
-  },
-  {
-    id: 2,
-    email: 'vet@petcast.com',
-    password: '123456',
-    name: 'Dr. Carlos Veterinario',
-    role: 'VET',
-  },
-  {
-    id: 3,
-    email: 'owner@petcast.com',
-    password: '123456',
-    name: 'Maria Gonzalez',
-    role: 'OWNER',
-  },
-];
+/**
+ * Mapeo de roles del backend al frontend
+ * Backend: ADMINISTRADOR, VETERINARIO, DUENO
+ * Frontend: ADMIN, VET, OWNER
+ */
+const mapRoleFromBackend = (backendRole) => {
+  const roleMap = {
+    ADMINISTRADOR: 'ADMIN',
+    VETERINARIO: 'VET',
+    DUENO: 'OWNER',
+  };
+  return roleMap[backendRole] || backendRole;
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Login con credenciales mock
+  // Verificar si hay una sesion guardada al cargar
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    const savedToken = localStorage.getItem('accessToken');
+
+    if (savedUser && savedToken) {
+      setUser(JSON.parse(savedUser));
+      setIsAuthenticated(true);
+    }
+    setLoading(false);
+  }, []);
+
+  // Login con API real
   const login = async (email, password) => {
     setLoading(true);
 
-    // Simular delay de red
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      const { data } = await userApi.post('/auth/login', {
+        correoElectronico: email,
+        contrasena: password,
+      });
 
-    const foundUser = MOCK_USERS.find(
-      (u) => u.email === email && u.password === password
-    );
+      // Mapear datos del usuario del backend al formato del frontend
+      const userData = {
+        id: data.user.id,
+        email: data.user.correoElectronico,
+        name: `${data.user.nombre} ${data.user.apellido}`,
+        role: mapRoleFromBackend(data.user.rol),
+      };
 
-    if (foundUser) {
-      const { password: _, ...userWithoutPassword } = foundUser;
-      setUser(userWithoutPassword);
+      // Guardar tokens y usuario en localStorage
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
+      localStorage.setItem('user', JSON.stringify(userData));
+
+      setUser(userData);
       setIsAuthenticated(true);
       setLoading(false);
-      return { success: true, user: userWithoutPassword };
-    }
 
-    setLoading(false);
-    return { success: false, error: 'Credenciales incorrectas' };
+      toast.success(`Bienvenido, ${userData.name}`);
+      return { success: true, user: userData };
+    } catch (error) {
+      setLoading(false);
+      const errorMessage = error.response?.data?.message || 'Credenciales incorrectas';
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
+    }
   };
 
   // Logout
   const logout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
     setUser(null);
     setIsAuthenticated(false);
+    toast.success('Sesión cerrada correctamente');
   };
 
   // Verificadores de rol

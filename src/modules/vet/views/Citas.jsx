@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Plus, Calendar, Clock, PawPrint } from 'lucide-react';
+import { Plus, Calendar, Clock, PawPrint, Loader2 } from 'lucide-react';
 import { Button, SearchBar } from '@/shared/components';
 import { CitaForm } from '../components';
+import { useAppointments, useCreateAppointment, useUpdateAppointment, usePets, useDuenos } from '@/shared/hooks';
 
 export default function Citas() {
-  const [citas, setCitas] = useState([
-    { id: 1, mascota: 'Max', dueno: 'Maria Garcia', fecha: '2024-01-15', hora: '09:00', tipo: 'Consulta', status: 'Pendiente' },
-    { id: 2, mascota: 'Luna', dueno: 'Carlos Lopez', fecha: '2024-01-15', hora: '10:30', tipo: 'Vacunacion', status: 'Confirmada' },
-    { id: 3, mascota: 'Rocky', dueno: 'Ana Martinez', fecha: '2024-01-15', hora: '12:00', tipo: 'Revision', status: 'Pendiente' },
-    { id: 4, mascota: 'Michi', dueno: 'Pedro Sanchez', fecha: '2024-01-16', hora: '09:30', tipo: 'Consulta', status: 'Confirmada' },
-  ]);
+  // Hooks de TanStack Query
+  const { data: citas = [], isLoading, error } = useAppointments();
+  const { data: mascotas = [] } = usePets();
+  const { data: duenos = [] } = useDuenos();
+  const createAppointment = useCreateAppointment();
+  const updateAppointment = useUpdateAppointment();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filtroActivo, setFiltroActivo] = useState('Todas');
@@ -34,14 +35,63 @@ export default function Citas() {
     setSelectedCita(null);
   };
 
-  const handleSubmit = (formData) => {
-    if (selectedCita) {
-      setCitas((prev) =>
-        prev.map((c) => (c.id === selectedCita.id ? { ...c, ...formData } : c))
-      );
-    } else {
-      const newCita = { id: Date.now(), ...formData };
-      setCitas((prev) => [...prev, newCita]);
+  // Obtener nombre de mascota
+  const getMascotaName = (mascotaId) => {
+    const mascota = mascotas.find(m => m.id === mascotaId);
+    return mascota?.nombre || 'Sin mascota';
+  };
+
+  // Obtener nombre de dueño
+  const getDuenoName = (duenoId) => {
+    const dueno = duenos.find(d => d.id === duenoId);
+    return dueno ? `${dueno.nombre} ${dueno.apellido}`.trim() : 'Sin dueño';
+  };
+
+  // Mapear estado del backend al frontend
+  const mapStatusFromBackend = (estado) => {
+    const map = {
+      'PROGRAMADA': 'Pendiente',
+      'CONFIRMADA': 'Confirmada',
+      'COMPLETADA': 'Completada',
+      'CANCELADA': 'Cancelada',
+    };
+    return map[estado] || estado;
+  };
+
+  // Mapear estado del frontend al backend
+  const mapStatusToBackend = (status) => {
+    const map = {
+      'Pendiente': 'PROGRAMADA',
+      'Confirmada': 'CONFIRMADA',
+      'Completada': 'COMPLETADA',
+      'Cancelada': 'CANCELADA',
+    };
+    return map[status] || 'PROGRAMADA';
+  };
+
+  const handleSubmit = async (formData) => {
+    try {
+      // Combinar fecha y hora
+      const fechaHora = new Date(`${formData.fecha}T${formData.hora}`);
+
+      const appointmentData = {
+        fechaHora: fechaHora.toISOString(),
+        motivo: formData.tipo,
+        estado: mapStatusToBackend(formData.status),
+        mascotaId: parseInt(formData.mascotaId),
+        duenoId: parseInt(formData.duenoId),
+        veterinarioId: null,
+        notas: formData.notas || null,
+      };
+
+      if (selectedCita) {
+        await updateAppointment.mutateAsync({ id: selectedCita.id, ...appointmentData });
+      } else {
+        await createAppointment.mutateAsync(appointmentData);
+      }
+      handleCloseForm();
+    } catch (err) {
+      console.error('Error al guardar cita:', err);
     }
   };
 
@@ -50,13 +100,31 @@ export default function Citas() {
       case 'Confirmada': return 'bg-green-100 text-green-700';
       case 'Pendiente': return 'bg-yellow-100 text-yellow-700';
       case 'Cancelada': return 'bg-red-100 text-red-700';
+      case 'Completada': return 'bg-blue-100 text-blue-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
 
   const filtros = ['Todas', 'Hoy', 'Pendientes', 'Confirmadas'];
 
-  const filteredCitas = citas.filter((cita) => {
+  // Mapear citas del backend al frontend
+  const mappedCitas = citas.map((cita) => {
+    const fechaHora = new Date(cita.fechaHora);
+    return {
+      id: cita.id,
+      mascota: getMascotaName(cita.mascotaId),
+      mascotaId: cita.mascotaId,
+      dueno: getDuenoName(cita.duenoId),
+      duenoId: cita.duenoId,
+      fecha: fechaHora.toISOString().split('T')[0],
+      hora: fechaHora.toTimeString().slice(0, 5),
+      tipo: cita.motivo,
+      status: mapStatusFromBackend(cita.estado),
+      notas: cita.notas,
+    };
+  });
+
+  const filteredCitas = mappedCitas.filter((cita) => {
     const matchSearch =
       cita.mascota.toLowerCase().includes(searchTerm.toLowerCase()) ||
       cita.dueno.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -69,6 +137,37 @@ export default function Citas() {
     return matchSearch;
   });
 
+  // Preparar datos para el formulario
+  const mascotasForForm = mascotas.map(m => ({
+    id: m.id,
+    nombre: m.nombre,
+    duenoId: m.duenoId,
+  }));
+
+  const duenosForForm = duenos.map(d => ({
+    id: d.id,
+    nombre: `${d.nombre} ${d.apellido}`.trim(),
+  }));
+
+  // Estado de carga
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  // Estado de error
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-500">Error al cargar citas</p>
+        <p className="text-gray-500 text-sm">{error.message}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -76,7 +175,12 @@ export default function Citas() {
           <h1 className="text-2xl font-bold text-gray-900">Citas</h1>
           <p className="text-gray-600">Gestiona las citas de tus pacientes</p>
         </div>
-        <Button variant="primary" className="flex items-center gap-2" onClick={handleOpenCreate}>
+        <Button
+          variant="primary"
+          className="flex items-center gap-2"
+          onClick={handleOpenCreate}
+          disabled={createAppointment.isPending}
+        >
           <Plus className="w-4 h-4" />
           Nueva Cita
         </Button>
@@ -153,6 +257,9 @@ export default function Citas() {
         onSubmit={handleSubmit}
         cita={selectedCita}
         isMobile={isMobile}
+        mascotas={mascotasForForm}
+        duenos={duenosForForm}
+        isLoading={createAppointment.isPending || updateAppointment.isPending}
       />
     </div>
   );

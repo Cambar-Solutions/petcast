@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { PawPrint, User, Palette, Scale, Ruler } from 'lucide-react';
+import { User } from 'lucide-react';
 import { Modal, Button } from '@/shared/components';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
@@ -18,18 +18,16 @@ import {
   SelectValue,
 } from '@/shared/components/ui/select';
 
-const tiposAnimal = ['Canino', 'Felino', 'Ave', 'Roedor', 'Reptil', 'Otro'];
+const especies = ['Perro', 'Gato', 'Ave', 'Roedor', 'Reptil', 'Otro'];
 const sexos = ['Macho', 'Hembra'];
-const tamanos = ['Muy pequeño', 'Pequeño', 'Mediano', 'Grande', 'Muy grande'];
 
-// Mock de dueños - en producción vendría de una API o contexto
-const duenosMock = [
-  { id: 1, name: 'Maria Garcia', email: 'maria@email.com' },
-  { id: 2, name: 'Carlos Lopez', email: 'carlos@email.com' },
-  { id: 3, name: 'Ana Martinez', email: 'ana@email.com' },
-  { id: 4, name: 'Pedro Sanchez', email: 'pedro@email.com' },
-  { id: 5, name: 'Jonathan Ocampo Flores', email: 'jonyocampo05@gmail.com' },
-];
+// Normalizar especie del backend a las opciones del select
+const normalizeEspecie = (especie) => {
+  if (!especie) return 'Perro';
+  const especieLower = especie.toLowerCase();
+  const found = especies.find(e => e.toLowerCase() === especieLower);
+  return found || 'Otro';
+};
 
 export default function MascotaForm({
   isOpen,
@@ -37,47 +35,52 @@ export default function MascotaForm({
   onSubmit,
   mascota = null,
   isMobile = false,
-  duenos = duenosMock,
+  duenos = [],
+  isLoading = false,
 }) {
   const isEditing = !!mascota;
 
-  const [formData, setFormData] = useState({
-    nombre: '',
-    tipo: 'Canino',
-    edad: '',
-    peso: '',
-    sexo: 'Macho',
-    tamano: 'Mediano',
-    color: '#8B4513',
-    colorNombre: '',
-    duenoId: '',
-  });
-
-  useEffect(() => {
-    if (mascota) {
-      setFormData({
-        nombre: mascota.nombre || mascota.name || '',
-        tipo: mascota.tipo || mascota.especie || 'Canino',
-        edad: mascota.edad || '',
-        peso: mascota.peso || '',
-        sexo: mascota.sexo || 'Macho',
-        tamano: mascota.tamano || 'Mediano',
-        color: mascota.color || '#8B4513',
-        colorNombre: mascota.colorNombre || '',
-        duenoId: mascota.duenoId?.toString() || '',
-      });
-    } else {
-      setFormData({
+  // Función para obtener el formData inicial
+  const getInitialFormData = (mascotaData) => {
+    if (!mascotaData) {
+      return {
         nombre: '',
-        tipo: 'Canino',
+        especie: 'Perro',
+        raza: '',
         edad: '',
         peso: '',
         sexo: 'Macho',
-        tamano: 'Mediano',
         color: '#8B4513',
-        colorNombre: '',
         duenoId: '',
-      });
+      };
+    }
+
+    // Normalizar sexo del backend
+    let sexoNormalizado = 'Macho';
+    if (mascotaData.sexo === 'MACHO' || mascotaData.sexo === 'Macho') {
+      sexoNormalizado = 'Macho';
+    } else if (mascotaData.sexo === 'HEMBRA' || mascotaData.sexo === 'Hembra') {
+      sexoNormalizado = 'Hembra';
+    }
+
+    return {
+      nombre: mascotaData.nombre || mascotaData.name || '',
+      especie: normalizeEspecie(mascotaData.especie),
+      raza: mascotaData.raza || '',
+      edad: mascotaData.edadNum?.toString() || '',
+      peso: mascotaData.peso?.toString() || '',
+      sexo: sexoNormalizado,
+      color: mascotaData.color || '#8B4513',
+      duenoId: mascotaData.duenoId?.toString() || '',
+    };
+  };
+
+  const [formData, setFormData] = useState(() => getInitialFormData(mascota));
+
+  // Reset form cuando cambia mascota o se abre/cierra
+  useEffect(() => {
+    if (isOpen) {
+      setFormData(getInitialFormData(mascota));
     }
   }, [mascota, isOpen]);
 
@@ -92,15 +95,11 @@ export default function MascotaForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Agregar el nombre del dueño al formData para compatibilidad
-    const selectedDueno = duenos.find(d => d.id.toString() === formData.duenoId);
-    const dataToSubmit = {
-      ...formData,
-      dueno: selectedDueno?.name || '',
-    };
-    onSubmit(dataToSubmit);
-    onClose();
+    onSubmit(formData);
   };
+
+  // Key única para forzar re-render de selects
+  const formKey = mascota?.id || 'new';
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -115,74 +114,96 @@ export default function MascotaForm({
           type="text"
           value={formData.nombre}
           onChange={handleChange}
-          placeholder="Ej: Solovino"
+          placeholder="Ej: Max"
           className="rounded-xl"
           required
         />
       </div>
 
-      {/* Tipo de animal */}
+      {/* Especie */}
       <div className="space-y-1.5">
         <Label className="text-xs text-petcast-text-light uppercase tracking-wide">
-          Tipo de animal
+          Especie
         </Label>
         <Select
-          value={formData.tipo}
-          onValueChange={(value) => handleSelectChange('tipo', value)}
+          key={`especie-${formKey}-${formData.especie}`}
+          value={formData.especie}
+          onValueChange={(value) => handleSelectChange('especie', value)}
         >
           <SelectTrigger className="w-full rounded-xl">
             <SelectValue placeholder="Selecciona" />
           </SelectTrigger>
           <SelectContent>
-            {tiposAnimal.map((tipo) => (
-              <SelectItem key={tipo} value={tipo}>
-                {tipo}
+            {especies.map((esp) => (
+              <SelectItem key={esp} value={esp}>
+                {esp}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
+      {/* Raza */}
+      <div className="space-y-1.5">
+        <Label htmlFor="raza" className="text-xs text-petcast-text-light uppercase tracking-wide">
+          Raza
+        </Label>
+        <Input
+          id="raza"
+          name="raza"
+          type="text"
+          value={formData.raza}
+          onChange={handleChange}
+          placeholder="Ej: Labrador, Siames, etc."
+          className="rounded-xl"
+        />
+      </div>
+
       {/* Edad y Peso */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label htmlFor="edad" className="text-xs text-petcast-text-light uppercase tracking-wide">
-            Edad
+            Edad (años)
           </Label>
           <Input
             id="edad"
             name="edad"
-            type="text"
+            type="number"
+            min="0"
             value={formData.edad}
             onChange={handleChange}
-            placeholder="Ej: 3 años"
+            placeholder="Ej: 3"
             className="rounded-xl"
+            required
           />
         </div>
 
         <div className="space-y-1.5">
           <Label htmlFor="peso" className="text-xs text-petcast-text-light uppercase tracking-wide">
-            Peso
+            Peso (kg)
           </Label>
           <Input
             id="peso"
             name="peso"
-            type="text"
+            type="number"
+            step="0.1"
+            min="0"
             value={formData.peso}
             onChange={handleChange}
-            placeholder="Ej: 16kg"
+            placeholder="Ej: 15.5"
             className="rounded-xl"
           />
         </div>
       </div>
 
-      {/* Sexo y Tamaño */}
+      {/* Sexo y Color */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label className="text-xs text-petcast-text-light uppercase tracking-wide">
             Sexo
           </Label>
           <Select
+            key={`sexo-${formKey}-${formData.sexo}`}
             value={formData.sexo}
             onValueChange={(value) => handleSelectChange('sexo', value)}
           >
@@ -201,33 +222,9 @@ export default function MascotaForm({
 
         <div className="space-y-1.5">
           <Label className="text-xs text-petcast-text-light uppercase tracking-wide">
-            Tamaño
+            Color
           </Label>
-          <Select
-            value={formData.tamano}
-            onValueChange={(value) => handleSelectChange('tamano', value)}
-          >
-            <SelectTrigger className="w-full rounded-xl">
-              <SelectValue placeholder="Selecciona" />
-            </SelectTrigger>
-            <SelectContent>
-              {tamanos.map((tam) => (
-                <SelectItem key={tam} value={tam}>
-                  {tam}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Color */}
-      <div className="space-y-1.5">
-        <Label className="text-xs text-petcast-text-light uppercase tracking-wide">
-          Color
-        </Label>
-        <div className="flex gap-3">
-          <div className="relative">
+          <div className="flex gap-2">
             <input
               type="color"
               name="color"
@@ -236,25 +233,17 @@ export default function MascotaForm({
               className="w-12 h-10 rounded-xl border border-petcast-bg-soft cursor-pointer"
             />
           </div>
-          <Input
-            id="colorNombre"
-            name="colorNombre"
-            type="text"
-            value={formData.colorNombre}
-            onChange={handleChange}
-            placeholder="Ej: Café, Negro, Blanco..."
-            className="rounded-xl flex-1"
-          />
         </div>
       </div>
 
-      {/* Dueño - Select */}
+      {/* Dueño */}
       <div className="space-y-1.5">
         <Label className="text-xs text-petcast-text-light uppercase tracking-wide flex items-center gap-2">
           <User className="w-3 h-3" />
           Propietario
         </Label>
         <Select
+          key={`dueno-${formKey}-${formData.duenoId}`}
           value={formData.duenoId}
           onValueChange={(value) => handleSelectChange('duenoId', value)}
         >
@@ -272,9 +261,6 @@ export default function MascotaForm({
             ))}
           </SelectContent>
         </Select>
-        <p className="text-xs text-petcast-text-light mt-1">
-          El propietario debe estar registrado previamente
-        </p>
       </div>
 
       {!isMobile && (
@@ -282,8 +268,8 @@ export default function MascotaForm({
           <Button type="button" variant="secondary" onClick={onClose}>
             Cancelar
           </Button>
-          <Button type="submit" variant="primary">
-            {isEditing ? 'Guardar' : 'Crear'}
+          <Button type="submit" variant="primary" disabled={isLoading}>
+            {isLoading ? 'Guardando...' : isEditing ? 'Guardar' : 'Crear'}
           </Button>
         </div>
       )}
@@ -292,7 +278,7 @@ export default function MascotaForm({
 
   if (isMobile) {
     return (
-      <Drawer open={isOpen} onOpenChange={onClose}>
+      <Drawer open={isOpen} onOpenChange={onClose} key={formKey}>
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>
@@ -306,8 +292,14 @@ export default function MascotaForm({
             <Button type="button" variant="secondary" onClick={onClose} className="w-full">
               Cancelar
             </Button>
-            <Button type="submit" variant="primary" onClick={handleSubmit} className="w-full">
-              {isEditing ? 'Guardar' : 'Crear'}
+            <Button
+              type="submit"
+              variant="primary"
+              onClick={handleSubmit}
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Guardando...' : isEditing ? 'Guardar' : 'Crear'}
             </Button>
           </DrawerFooter>
         </DrawerContent>
@@ -316,7 +308,7 @@ export default function MascotaForm({
   }
 
   return (
-    <Modal open={isOpen} onClose={onClose} size="md">
+    <Modal open={isOpen} onClose={onClose} size="md" key={formKey}>
       <h3 className="text-xl font-semibold text-petcast-heading mb-4">
         {isEditing ? 'Editar Mascota' : 'Nueva Mascota'}
       </h3>

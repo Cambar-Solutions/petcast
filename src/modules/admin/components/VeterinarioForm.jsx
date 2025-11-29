@@ -34,11 +34,13 @@ export default function VeterinarioForm({
   onSubmit,
   veterinario = null,
   isMobile = false,
+  isLoading = false,
 }) {
   const isEditing = !!veterinario;
 
   const [formData, setFormData] = useState({
-    name: '',
+    nombre: '',
+    apellido: '',
     email: '',
     especialidad: 'General',
     status: 'Activo',
@@ -46,15 +48,22 @@ export default function VeterinarioForm({
 
   useEffect(() => {
     if (veterinario) {
+      // Separar nombre completo en nombre y apellido
+      const nameParts = (veterinario.name || '').split(' ');
+      const nombre = nameParts[0] || '';
+      const apellido = nameParts.slice(1).join(' ') || '';
+
       setFormData({
-        name: veterinario.name || '',
+        nombre: nombre,
+        apellido: apellido,
         email: veterinario.email || '',
         especialidad: veterinario.especialidad || 'General',
         status: veterinario.status || 'Activo',
       });
     } else {
       setFormData({
-        name: '',
+        nombre: '',
+        apellido: '',
         email: '',
         especialidad: 'General',
         status: 'Activo',
@@ -74,26 +83,41 @@ export default function VeterinarioForm({
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(formData);
-    onClose();
   };
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="name" className="flex items-center gap-2">
-          <User className="w-4 h-4 text-gray-400" />
-          Nombre completo
-        </Label>
-        <Input
-          id="name"
-          name="name"
-          type="text"
-          value={formData.name}
-          onChange={handleChange}
-          placeholder="Dr. Juan Perez"
-          className="rounded-xl"
-          required
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="nombre" className="flex items-center gap-2">
+            <User className="w-4 h-4 text-gray-400" />
+            Nombre
+          </Label>
+          <Input
+            id="nombre"
+            name="nombre"
+            type="text"
+            value={formData.nombre}
+            onChange={handleChange}
+            placeholder="Carlos"
+            className="rounded-xl"
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="apellido">Apellido</Label>
+          <Input
+            id="apellido"
+            name="apellido"
+            type="text"
+            value={formData.apellido}
+            onChange={handleChange}
+            placeholder="Martinez"
+            className="rounded-xl"
+            required
+          />
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -107,7 +131,7 @@ export default function VeterinarioForm({
           type="email"
           value={formData.email}
           onChange={handleChange}
-          placeholder="juan@petcast.com"
+          placeholder="carlos@petcast.com"
           className="rounded-xl"
           required
         />
@@ -159,8 +183,8 @@ export default function VeterinarioForm({
           <Button type="button" variant="secondary" onClick={onClose}>
             Cancelar
           </Button>
-          <Button type="submit" variant="primary">
-            {isEditing ? 'Guardar Cambios' : 'Crear Veterinario'}
+          <Button type="submit" variant="primary" disabled={isLoading}>
+            {isLoading ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Crear Veterinario'}
           </Button>
         </div>
       )}
@@ -184,8 +208,14 @@ export default function VeterinarioForm({
             <Button type="button" variant="secondary" onClick={onClose} className="w-full">
               Cancelar
             </Button>
-            <Button type="submit" variant="primary" onClick={handleSubmit} className="w-full">
-              {isEditing ? 'Guardar Cambios' : 'Crear Veterinario'}
+            <Button
+              type="submit"
+              variant="primary"
+              onClick={handleSubmit}
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Crear Veterinario'}
             </Button>
           </DrawerFooter>
         </DrawerContent>

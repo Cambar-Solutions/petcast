@@ -235,8 +235,8 @@ export default function Login() {
             {showCredentials && (
               <div className="mt-2 p-3 bg-petcast-bg-soft/30 border border-petcast-bg-soft rounded-xl text-sm text-petcast-text space-y-1">
                 <p><span className="font-medium">Admin:</span> admin@petcast.com / 123456</p>
-                <p><span className="font-medium">Vet:</span> vet@petcast.com / 123456</p>
-                <p><span className="font-medium">Owner:</span> owner@petcast.com / 123456</p>
+                <p><span className="font-medium">Vet:</span> carlos.vet@petcast.com / 123456</p>
+                <p><span className="font-medium">Dueño:</span> maria@email.com / 123456</p>
               </div>
             )}
           </div>

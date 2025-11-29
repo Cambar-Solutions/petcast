@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { PawPrint, Calendar, Clock, FileText } from 'lucide-react';
+import { PawPrint, Calendar, Clock, FileText, User } from 'lucide-react';
 import { Modal, Button } from '@/shared/components';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
+import { Textarea } from '@/shared/components/ui/textarea';
 import {
   Drawer,
   DrawerContent,
@@ -27,12 +28,15 @@ export default function CitaForm({
   onSubmit,
   cita = null,
   isMobile = false,
+  mascotas = [],
+  duenos = [],
+  isLoading = false,
 }) {
   const isEditing = !!cita;
 
   const [formData, setFormData] = useState({
-    mascota: '',
-    dueno: '',
+    mascotaId: '',
+    duenoId: '',
     fecha: '',
     hora: '',
     tipo: 'Consulta',
@@ -40,11 +44,14 @@ export default function CitaForm({
     notas: '',
   });
 
+  // Mascotas filtradas por dueño seleccionado
+  const [mascotasFiltradas, setMascotasFiltradas] = useState([]);
+
   useEffect(() => {
     if (cita) {
       setFormData({
-        mascota: cita.mascota || '',
-        dueno: cita.dueno || '',
+        mascotaId: cita.mascotaId?.toString() || '',
+        duenoId: cita.duenoId?.toString() || '',
         fecha: cita.fecha || '',
         hora: cita.hora || '',
         tipo: cita.tipo || 'Consulta',
@@ -53,8 +60,8 @@ export default function CitaForm({
       });
     } else {
       setFormData({
-        mascota: '',
-        dueno: '',
+        mascotaId: '',
+        duenoId: '',
         fecha: '',
         hora: '',
         tipo: 'Consulta',
@@ -64,6 +71,16 @@ export default function CitaForm({
     }
   }, [cita, isOpen]);
 
+  // Filtrar mascotas cuando cambia el dueño
+  useEffect(() => {
+    if (formData.duenoId) {
+      const filtered = mascotas.filter(m => m.duenoId?.toString() === formData.duenoId);
+      setMascotasFiltradas(filtered);
+    } else {
+      setMascotasFiltradas(mascotas);
+    }
+  }, [formData.duenoId, mascotas]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -71,47 +88,65 @@ export default function CitaForm({
 
   const handleSelectChange = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Si cambia el dueño, resetear la mascota
+    if (name === 'duenoId') {
+      setFormData((prev) => ({ ...prev, mascotaId: '' }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(formData);
-    onClose();
   };
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="mascota" className="flex items-center gap-2">
-            <PawPrint className="w-4 h-4 text-gray-400" />
-            Mascota
-          </Label>
-          <Input
-            id="mascota"
-            name="mascota"
-            type="text"
-            value={formData.mascota}
-            onChange={handleChange}
-            placeholder="Max"
-            className="rounded-xl"
-            required
-          />
-        </div>
+      {/* Dueño */}
+      <div className="space-y-2">
+        <Label className="flex items-center gap-2">
+          <User className="w-4 h-4 text-gray-400" />
+          Dueño
+        </Label>
+        <Select
+          value={formData.duenoId}
+          onValueChange={(value) => handleSelectChange('duenoId', value)}
+        >
+          <SelectTrigger className="w-full rounded-xl">
+            <SelectValue placeholder="Selecciona un dueño" />
+          </SelectTrigger>
+          <SelectContent>
+            {duenos.map((dueno) => (
+              <SelectItem key={dueno.id} value={dueno.id.toString()}>
+                {dueno.nombre}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="dueno">Dueno</Label>
-          <Input
-            id="dueno"
-            name="dueno"
-            type="text"
-            value={formData.dueno}
-            onChange={handleChange}
-            placeholder="Maria Garcia"
-            className="rounded-xl"
-            required
-          />
-        </div>
+      {/* Mascota */}
+      <div className="space-y-2">
+        <Label className="flex items-center gap-2">
+          <PawPrint className="w-4 h-4 text-gray-400" />
+          Mascota
+        </Label>
+        <Select
+          value={formData.mascotaId}
+          onValueChange={(value) => handleSelectChange('mascotaId', value)}
+          disabled={!formData.duenoId}
+        >
+          <SelectTrigger className="w-full rounded-xl">
+            <SelectValue placeholder={formData.duenoId ? "Selecciona una mascota" : "Primero selecciona un dueño"} />
+          </SelectTrigger>
+          <SelectContent>
+            {mascotasFiltradas.map((mascota) => (
+              <SelectItem key={mascota.id} value={mascota.id.toString()}>
+                {mascota.nombre}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -191,13 +226,27 @@ export default function CitaForm({
         </div>
       </div>
 
+      {/* Notas */}
+      <div className="space-y-2">
+        <Label htmlFor="notas">Notas (opcional)</Label>
+        <Textarea
+          id="notas"
+          name="notas"
+          value={formData.notas}
+          onChange={handleChange}
+          placeholder="Observaciones adicionales..."
+          className="rounded-xl"
+          rows={3}
+        />
+      </div>
+
       {!isMobile && (
         <div className="flex justify-end gap-3 pt-4">
           <Button type="button" variant="secondary" onClick={onClose}>
             Cancelar
           </Button>
-          <Button type="submit" variant="primary">
-            {isEditing ? 'Guardar Cambios' : 'Crear Cita'}
+          <Button type="submit" variant="primary" disabled={isLoading}>
+            {isLoading ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Crear Cita'}
           </Button>
         </div>
       )}
@@ -220,8 +269,14 @@ export default function CitaForm({
             <Button type="button" variant="secondary" onClick={onClose} className="w-full">
               Cancelar
             </Button>
-            <Button type="submit" variant="primary" onClick={handleSubmit} className="w-full">
-              {isEditing ? 'Guardar Cambios' : 'Crear Cita'}
+            <Button
+              type="submit"
+              variant="primary"
+              onClick={handleSubmit}
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Crear Cita'}
             </Button>
           </DrawerFooter>
         </DrawerContent>

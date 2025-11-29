@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Edit, Trash2, QrCode, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, Loader2 } from 'lucide-react';
 import { Button, SearchBar, ConfirmDialog } from '@/shared/components';
 import { MascotaForm } from '../components';
+import { usePets, useCreatePet, useUpdatePet, useDeletePet, useDuenos } from '@/shared/hooks';
 
 export default function Mascotas() {
   const navigate = useNavigate();
-  const [mascotas, setMascotas] = useState([
-    { id: 1, name: 'Max', especie: 'Perro', raza: 'Labrador', dueno: 'Maria Garcia', edad: '3 anos' },
-    { id: 2, name: 'Luna', especie: 'Gato', raza: 'Siames', dueno: 'Carlos Lopez', edad: '2 anos' },
-    { id: 3, name: 'Rocky', especie: 'Perro', raza: 'Bulldog', dueno: 'Ana Martinez', edad: '5 anos' },
-    { id: 4, name: 'Michi', especie: 'Gato', raza: 'Persa', dueno: 'Pedro Sanchez', edad: '1 ano' },
-  ]);
+
+  // Hooks de TanStack Query
+  const { data: mascotas = [], isLoading, error } = usePets();
+  const { data: duenos = [] } = useDuenos();
+  const createPet = useCreatePet();
+  const updatePet = useUpdatePet();
+  const deletePet = useDeletePet();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -42,14 +44,31 @@ export default function Mascotas() {
     setSelectedMascota(null);
   };
 
-  const handleSubmit = (formData) => {
-    if (selectedMascota) {
-      setMascotas((prev) =>
-        prev.map((m) => (m.id === selectedMascota.id ? { ...m, ...formData } : m))
-      );
-    } else {
-      const newMascota = { id: Date.now(), ...formData };
-      setMascotas((prev) => [...prev, newMascota]);
+  const handleSubmit = async (formData) => {
+    try {
+      const petData = {
+        nombre: formData.nombre,
+        especie: formData.especie,
+        raza: formData.raza || null,
+        edad: parseInt(formData.edad) || 0,
+        peso: formData.peso ? parseFloat(formData.peso) : null,
+        sexo: formData.sexo === 'Macho' ? 'MACHO' : 'HEMBRA',
+        color: formData.color || null,
+      };
+
+      // Solo incluir duenoId si está seleccionado
+      if (formData.duenoId) {
+        petData.duenoId = parseInt(formData.duenoId);
+      }
+
+      if (selectedMascota) {
+        await updatePet.mutateAsync({ id: selectedMascota.id, ...petData });
+      } else {
+        await createPet.mutateAsync(petData);
+      }
+      handleCloseForm();
+    } catch (err) {
+      console.error('Error al guardar mascota:', err);
     }
   };
 
@@ -58,10 +77,15 @@ export default function Mascotas() {
     setIsConfirmOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (mascotaToDelete) {
-      setMascotas((prev) => prev.filter((m) => m.id !== mascotaToDelete.id));
-      setMascotaToDelete(null);
+      try {
+        await deletePet.mutateAsync(mascotaToDelete.id);
+        setMascotaToDelete(null);
+        setIsConfirmOpen(false);
+      } catch (err) {
+        console.error('Error al eliminar mascota:', err);
+      }
     }
   };
 
@@ -70,12 +94,62 @@ export default function Mascotas() {
     setMascotaToDelete(null);
   };
 
-  const filteredMascotas = mascotas.filter(
+  // Mapear dueños para el formulario
+  const mappedDuenos = duenos.map((d) => ({
+    id: d.id,
+    name: `${d.nombre} ${d.apellido}`.trim(),
+    email: d.correoElectronico,
+  }));
+
+  // Función para obtener nombre del dueño
+  const getDuenoName = (duenoId) => {
+    const dueno = duenos.find(d => d.id === duenoId);
+    return dueno ? `${dueno.nombre} ${dueno.apellido}`.trim() : 'Sin dueño';
+  };
+
+  // Mapear mascotas del backend al formato del frontend
+  const mappedMascotas = mascotas.map((m) => ({
+    id: m.id,
+    name: m.nombre,
+    nombre: m.nombre,
+    especie: m.especie,
+    raza: m.raza, // Mantener null/undefined para el form
+    razaDisplay: m.raza || 'Sin raza', // Solo para mostrar en lista
+    dueno: getDuenoName(m.duenoId),
+    duenoId: m.duenoId,
+    edad: m.edad ? `${m.edad} años` : 'Sin edad',
+    edadNum: m.edad,
+    peso: m.peso,
+    sexo: m.sexo,
+    color: m.color,
+    codigoQR: m.codigoQR,
+  }));
+
+  const filteredMascotas = mappedMascotas.filter(
     (mascota) =>
       mascota.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       mascota.dueno.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      mascota.raza.toLowerCase().includes(searchTerm.toLowerCase())
+      mascota.razaDisplay.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Estado de carga
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  // Estado de error
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-500">Error al cargar mascotas</p>
+        <p className="text-gray-500 text-sm">{error.message}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -84,16 +158,15 @@ export default function Mascotas() {
           <h1 className="text-2xl font-bold text-gray-900">Mascotas</h1>
           <p className="text-gray-600">Gestiona las mascotas registradas</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="flex items-center gap-2">
-            <QrCode className="w-4 h-4" />
-            Escanear QR
-          </Button>
-          <Button variant="primary" className="flex items-center gap-2" onClick={handleOpenCreate}>
-            <Plus className="w-4 h-4" />
-            Nueva Mascota
-          </Button>
-        </div>
+        <Button
+          variant="primary"
+          className="flex items-center gap-2"
+          onClick={handleOpenCreate}
+          disabled={createPet.isPending}
+        >
+          <Plus className="w-4 h-4" />
+          Nueva Mascota
+        </Button>
       </div>
 
       {/* Buscador */}
@@ -111,7 +184,7 @@ export default function Mascotas() {
             <div className="flex items-start justify-between mb-3">
               <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center">
                 <span className="text-2xl">
-                  {mascota.especie === 'Perro' ? '🐕' : '🐈'}
+                  {mascota.especie === 'Perro' ? '🐕' : mascota.especie === 'Gato' ? '🐈' : '🐾'}
                 </span>
               </div>
               <div className="flex gap-1">
@@ -136,7 +209,7 @@ export default function Mascotas() {
               </div>
             </div>
             <h3 className="font-semibold text-gray-900">{mascota.name}</h3>
-            <p className="text-sm text-gray-500">{mascota.raza} - {mascota.edad}</p>
+            <p className="text-sm text-gray-500">{mascota.razaDisplay} - {mascota.edad}</p>
             <div className="mt-3 pt-3 border-t border-gray-100">
               <p className="text-xs text-gray-400">Dueno</p>
               <p className="text-sm font-medium text-gray-700">{mascota.dueno}</p>
@@ -158,6 +231,8 @@ export default function Mascotas() {
         onSubmit={handleSubmit}
         mascota={selectedMascota}
         isMobile={isMobile}
+        duenos={mappedDuenos}
+        isLoading={createPet.isPending || updatePet.isPending}
       />
 
       {/* Confirm Delete Dialog */}
@@ -170,6 +245,7 @@ export default function Mascotas() {
         confirmText="Eliminar"
         cancelText="Cancelar"
         variant="danger"
+        isLoading={deletePet.isPending}
       />
     </div>
   );

@@ -31,6 +31,9 @@ import {
   MisCitas,
 } from '@/modules/owner';
 
+// Vista pública (QR)
+import { MascotaPublica } from '@/modules/public/views';
+
 // Layout
 import MainLayout from '@/layouts/MainLayout';
 
@@ -198,6 +201,9 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Ruta pública - Consulta de mascota por QR */}
+          <Route path="/mascota/:id" element={<MascotaPublica />} />
 
           {/* Ruta de acceso denegado */}
           <Route path="/unauthorized" element={<Unauthorized />} />
