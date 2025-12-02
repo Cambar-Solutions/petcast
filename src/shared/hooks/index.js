@@ -22,6 +22,8 @@ export {
   useCreatePet,
   useUpdatePet,
   useDeletePet,
+  useUpdatePetStatus,
+  useRegistrarVisita,
 } from './usePets';
 
 // Hooks de citas

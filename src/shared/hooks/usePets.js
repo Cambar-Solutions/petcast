@@ -153,3 +153,58 @@ export const useDeletePet = () => {
     },
   });
 };
+
+/**
+ * Actualizar el estado de una mascota manualmente
+ */
+export const useUpdatePetStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, estado }) => {
+      const { data } = await petApi.patch(`/pets/${id}/status`, { estado });
+      return data;
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.pets });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.pet(variables.id) });
+      const estadoText = variables.estado === 'ACTIVO' ? 'activada' : 'desactivada';
+      toast.success(`Mascota ${estadoText} correctamente`);
+    },
+    onError: (error) => {
+      const backendMsg = error.response?.data?.message;
+      const msgStr = Array.isArray(backendMsg) ? backendMsg[0] : backendMsg;
+      const message = msgStr && typeof msgStr === 'string' && !msgStr.toLowerCase().includes('internal')
+        ? msgStr
+        : 'No se pudo cambiar el estado de la mascota. Intenta de nuevo.';
+      toast.error(message);
+    },
+  });
+};
+
+/**
+ * Registrar visita al veterinario (reactiva la mascota)
+ */
+export const useRegistrarVisita = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id) => {
+      const { data } = await petApi.post(`/pets/${id}/visita`);
+      return data;
+    },
+    onSuccess: (data, id) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.pets });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.pet(id) });
+      toast.success('Visita registrada. Mascota reactivada.');
+    },
+    onError: (error) => {
+      const backendMsg = error.response?.data?.message;
+      const msgStr = Array.isArray(backendMsg) ? backendMsg[0] : backendMsg;
+      const message = msgStr && typeof msgStr === 'string' && !msgStr.toLowerCase().includes('internal')
+        ? msgStr
+        : 'No se pudo registrar la visita. Intenta de nuevo.';
+      toast.error(message);
+    },
+  });
+};

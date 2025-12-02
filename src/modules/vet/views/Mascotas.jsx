@@ -3,17 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, Loader2 } from 'lucide-react';
 import { Button, Title, Description, SearchBar, ConfirmDialog } from '@/shared/components';
 import { MascotaForm } from '../components';
-import { usePets, useCreatePet, useUpdatePet, useDeletePet, useDuenos } from '@/shared/hooks';
+import { usePets, useCreatePet, useUpdatePet, useDeletePet, useDuenos, useUpdatePetStatus } from '@/shared/hooks';
+import { Switch } from '@/shared/components/ui/switch';
 
 export default function Mascotas() {
   const navigate = useNavigate();
 
-  // Hooks de TanStack Query
   const { data: mascotas = [], isLoading, error } = usePets();
   const { data: duenos = [] } = useDuenos();
   const createPet = useCreatePet();
   const updatePet = useUpdatePet();
   const deletePet = useDeletePet();
+  const updatePetStatus = useUpdatePetStatus();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -34,11 +35,6 @@ export default function Mascotas() {
     setIsFormOpen(true);
   };
 
-  const handleOpenEdit = (mascota) => {
-    setSelectedMascota(mascota);
-    setIsFormOpen(true);
-  };
-
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setSelectedMascota(null);
@@ -56,7 +52,6 @@ export default function Mascotas() {
         color: formData.color || null,
       };
 
-      // Solo incluir duenoId si está seleccionado
       if (formData.duenoId) {
         petData.duenoId = parseInt(formData.duenoId);
       }
@@ -94,35 +89,43 @@ export default function Mascotas() {
     setMascotaToDelete(null);
   };
 
-  // Mapear dueños para el formulario
+  const handleToggleStatus = async (mascota) => {
+    const nuevoEstado = mascota.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
+    try {
+      await updatePetStatus.mutateAsync({ id: mascota.id, estado: nuevoEstado });
+    } catch (err) {
+      console.error('Error al cambiar estado:', err);
+    }
+  };
+
   const mappedDuenos = duenos.map((d) => ({
     id: d.id,
-    name: `${d.nombre} ${d.apellido}`.trim(),
+    name: (d.nombre + ' ' + d.apellido).trim(),
     email: d.correoElectronico,
   }));
 
-  // Función para obtener nombre del dueño
   const getDuenoName = (duenoId) => {
     const dueno = duenos.find(d => d.id === duenoId);
-    return dueno ? `${dueno.nombre} ${dueno.apellido}`.trim() : 'Sin dueño';
+    return dueno ? (dueno.nombre + ' ' + dueno.apellido).trim() : 'Sin dueno';
   };
 
-  // Mapear mascotas del backend al formato del frontend
   const mappedMascotas = mascotas.map((m) => ({
     id: m.id,
     name: m.nombre,
     nombre: m.nombre,
     especie: m.especie,
-    raza: m.raza, // Mantener null/undefined para el form
-    razaDisplay: m.raza || 'Sin raza', // Solo para mostrar en lista
+    raza: m.raza,
+    razaDisplay: m.raza || 'Sin raza',
     dueno: getDuenoName(m.duenoId),
     duenoId: m.duenoId,
-    edad: m.edad ? `${m.edad} años` : 'Sin edad',
+    edad: m.edad ? m.edad + ' anos' : 'Sin edad',
     edadNum: m.edad,
     peso: m.peso,
     sexo: m.sexo,
     color: m.color,
     codigoQR: m.codigoQR,
+    estado: m.estado || 'ACTIVO',
+    ultimaVisita: m.ultimaVisita,
   }));
 
   const filteredMascotas = mappedMascotas.filter(
@@ -132,7 +135,6 @@ export default function Mascotas() {
       mascota.razaDisplay.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Estado de carga
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -141,7 +143,6 @@ export default function Mascotas() {
     );
   }
 
-  // Estado de error
   if (error) {
     return (
       <div className="text-center py-8">
@@ -156,7 +157,7 @@ export default function Mascotas() {
       <div className="flex flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <Title variant="page-title">Mascotas</Title>
-          <Description variant="section-description" mobileText="Gestión de mascotas">
+          <Description variant="section-description" mobileText="Gestion de mascotas">
             Gestiona las mascotas registradas
           </Description>
         </div>
@@ -171,26 +172,42 @@ export default function Mascotas() {
         </Button>
       </div>
 
-      {/* Buscador */}
       <SearchBar
-        placeholder="Buscar mascota por nombre o dueño..."
+        placeholder="Buscar mascota por nombre o dueno..."
         value={searchTerm}
         onChange={setSearchTerm}
         debounceMs={300}
       />
 
-      {/* Grid de mascotas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredMascotas.map((mascota) => (
-          <div key={mascota.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col">
+          <div
+            key={mascota.id}
+            className={"bg-white rounded-2xl p-4 shadow-sm border flex flex-col " + (
+              mascota.estado === 'INACTIVO'
+                ? 'border-red-200 bg-red-50/30'
+                : 'border-gray-100'
+            )}
+          >
             <div className="flex items-start gap-3 mb-3">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <span className="text-2xl">
-                  {mascota.especie === 'Perro' ? '🐕' : mascota.especie === 'Gato' ? '🐈' : '🐾'}
+              <div className={"w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 " + (
+                mascota.estado === 'INACTIVO'
+                  ? 'bg-gradient-to-br from-gray-200 to-gray-300'
+                  : 'bg-gradient-to-br from-blue-100 to-purple-100'
+              )}>
+                <span className={"text-2xl " + (mascota.estado === 'INACTIVO' ? 'grayscale opacity-60' : '')}>
+                  {mascota.especie === 'Perro' ? '\uD83D\uDC15' : mascota.especie === 'Gato' ? '\uD83D\uDC08' : '\uD83D\uDC3E'}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-900 truncate">{mascota.name}</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-gray-900 truncate">{mascota.name}</h3>
+                  {mascota.estado === 'INACTIVO' && (
+                    <span className="px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 rounded-full">
+                      Inactivo
+                    </span>
+                  )}
+                </div>
                 <p className="text-sm text-gray-500 truncate">{mascota.razaDisplay} - {mascota.edad}</p>
               </div>
               <button
@@ -200,13 +217,31 @@ export default function Mascotas() {
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
+
+            <div className="flex items-center justify-between py-2 px-1 mb-2 bg-gray-50 rounded-lg">
+              <span className="text-xs text-gray-600">Estado</span>
+              <div className="flex items-center gap-2">
+                <span className={"text-xs font-medium " + (
+                  mascota.estado === 'ACTIVO' ? 'text-green-600' : 'text-red-600'
+                )}>
+                  {mascota.estado === 'ACTIVO' ? 'Activo' : 'Inactivo'}
+                </span>
+                <Switch
+                  checked={mascota.estado === 'ACTIVO'}
+                  onCheckedChange={() => handleToggleStatus(mascota)}
+                  disabled={updatePetStatus.isPending}
+                  className="data-[state=checked]:bg-green-500"
+                />
+              </div>
+            </div>
+
             <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
               <div className="min-w-0 flex-1">
-                <p className="text-xs text-gray-400">Dueño</p>
+                <p className="text-xs text-gray-400">Dueno</p>
                 <p className="text-sm font-medium text-gray-700 truncate">{mascota.dueno}</p>
               </div>
               <button
-                onClick={() => navigate(`/vet/mascota/${mascota.id}`)}
+                onClick={() => navigate('/vet/mascota/' + mascota.id)}
                 className="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium flex-shrink-0 ml-2 cursor-pointer"
               >
                 Ver detalles
@@ -222,7 +257,6 @@ export default function Mascotas() {
         </div>
       )}
 
-      {/* Form Modal/Drawer */}
       <MascotaForm
         isOpen={isFormOpen}
         onClose={handleCloseForm}
@@ -233,13 +267,12 @@ export default function Mascotas() {
         isLoading={createPet.isPending || updatePet.isPending}
       />
 
-      {/* Confirm Delete Dialog */}
       <ConfirmDialog
         isOpen={isConfirmOpen}
         onClose={handleCloseConfirm}
         onConfirm={handleConfirmDelete}
         title="Eliminar mascota"
-        message={`Estas seguro de eliminar a ${mascotaToDelete?.name}? Esta accion no se puede deshacer.`}
+        message={'Estas seguro de eliminar a ' + (mascotaToDelete?.name || '') + '? Esta accion no se puede deshacer.'}
         confirmText="Eliminar"
         cancelText="Cancelar"
         variant="danger"
