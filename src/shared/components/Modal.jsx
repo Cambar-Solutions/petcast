@@ -25,6 +25,7 @@ const Modal = ({ open, onClose, children, size = 'md', className = '' }) => {
       <div
         className={`
           relative z-10 ${sizeVariants[size]} mx-auto
+          bg-white rounded-3xl shadow-xl p-6
           transform transition-all max-h-[90vh] overflow-y-auto
           ${className}
         `}
@@ -32,7 +33,7 @@ const Modal = ({ open, onClose, children, size = 'md', className = '' }) => {
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full bg-white/80 hover:bg-gray-100 transition-colors z-10"
+          className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors z-10"
         >
           <X className="w-5 h-5 text-gray-500" />
         </button>

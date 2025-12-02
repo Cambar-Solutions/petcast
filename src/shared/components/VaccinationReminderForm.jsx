@@ -253,17 +253,15 @@ export default function VaccinationReminderForm({
 
   return (
     <Modal open={isOpen} onClose={onClose} size="md">
-      <div className="bg-white rounded-3xl p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="bg-green-100 p-2 rounded-lg">
-            <Syringe className="w-6 h-6 text-green-600" />
-          </div>
-          <h3 className="text-xl font-semibold text-petcast-heading">
-            Recordatorio de Vacunacion
-          </h3>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="bg-green-100 p-2 rounded-lg">
+          <Syringe className="w-6 h-6 text-green-600" />
         </div>
-        {formContent}
+        <h3 className="text-xl font-semibold text-petcast-heading">
+          Recordatorio de Vacunacion
+        </h3>
       </div>
+      {formContent}
     </Modal>
   );
 }

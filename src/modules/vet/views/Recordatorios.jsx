@@ -6,8 +6,7 @@ import {
   Plus,
   Send,
   Clock,
-  CheckCircle,
-  RefreshCw
+  CheckCircle
 } from 'lucide-react';
 import {
   WhatsappStatus,
@@ -37,7 +36,7 @@ export default function Recordatorios() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const { data: pendingReminders = [], isLoading, refetch } = usePendingReminders();
+  const { data: pendingReminders = [], isLoading } = usePendingReminders();
   const sendReminder = useSendReminder();
   const processAll = useProcessAllReminders();
 
@@ -187,27 +186,17 @@ export default function Recordatorios() {
             <p className="text-sm text-gray-500">
               {pendingReminders.length} recordatorio{pendingReminders.length !== 1 ? 's' : ''} pendiente{pendingReminders.length !== 1 ? 's' : ''}
             </p>
-            <div className="flex gap-2">
+            {pendingReminders.length > 0 && (
               <Button
-                variant="outline"
+                variant="primary"
                 size="sm"
-                onClick={() => refetch()}
-                disabled={isLoading}
+                onClick={() => processAll.mutate()}
+                disabled={processAll.isPending}
               >
-                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <Send className="w-4 h-4 mr-1" />
+                Enviar todos
               </Button>
-              {pendingReminders.length > 0 && (
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={() => processAll.mutate()}
-                  disabled={processAll.isPending}
-                >
-                  <Send className="w-4 h-4 mr-1" />
-                  Enviar todos
-                </Button>
-              )}
-            </div>
+            )}
           </div>
 
           {/* Lista de pendientes */}

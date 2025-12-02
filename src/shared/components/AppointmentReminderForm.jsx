@@ -266,17 +266,15 @@ export default function AppointmentReminderForm({
 
   return (
     <Modal open={isOpen} onClose={onClose} size="md">
-      <div className="bg-white rounded-3xl p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="bg-blue-100 p-2 rounded-lg">
-            <Calendar className="w-6 h-6 text-blue-600" />
-          </div>
-          <h3 className="text-xl font-semibold text-petcast-heading">
-            Recordatorio de Cita
-          </h3>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="bg-blue-100 p-2 rounded-lg">
+          <Calendar className="w-6 h-6 text-blue-600" />
         </div>
-        {formContent}
+        <h3 className="text-xl font-semibold text-petcast-heading">
+          Recordatorio de Cita
+        </h3>
       </div>
+      {formContent}
     </Modal>
   );
 }

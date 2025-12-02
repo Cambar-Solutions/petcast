@@ -1,9 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, QrCode, Calendar, FileText, Download, X, Loader2, Pencil } from 'lucide-react';
+import { ArrowLeft, QrCode, Calendar, FileText, Download, Loader2, Pencil, User } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button, Modal } from '@/shared/components';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/shared/components/ui/accordion';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from '@/shared/components/ui/drawer';
 import { MascotaForm } from '../components';
 import { usePet, useDuenos, useMedicalRecordsByPet, useUpdatePet } from '@/shared/hooks';
 
@@ -51,6 +59,7 @@ export default function MascotaDetalle() {
         color: formData.color || null,
       };
 
+      // Solo incluir duenoId si está seleccionado
       if (formData.duenoId) {
         petData.duenoId = parseInt(formData.duenoId);
       }
@@ -111,7 +120,7 @@ export default function MascotaDetalle() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24 md:pb-0">
       {/* Header */}
       <div className="flex items-center gap-4">
         <button
@@ -126,246 +135,481 @@ export default function MascotaDetalle() {
         </div>
       </div>
 
-      {/* Contenido principal */}
-      <div className="flex flex-col lg:flex-row gap-6">
-
-        {/* Columna izquierda - Info de mascota */}
-        <div className="lg:w-64 flex-shrink-0">
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            {/* Imagen y nombre */}
-            <div className="flex flex-col items-center mb-5 pb-5 border-b border-petcast-bg-soft">
-              <div className="w-28 h-28 bg-petcast-bg-soft rounded-2xl flex items-center justify-center mb-3 overflow-hidden">
-                <span className="text-5xl">
+      {/* Layout Mobile con Accordions */}
+      {isMobile ? (
+        <div className="space-y-4">
+          {/* Card compacta de mascota */}
+          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-petcast-bg-soft rounded-xl flex items-center justify-center flex-shrink-0">
+                <span className="text-3xl">
                   {mascota.especie === 'Perro' ? '🐕' : mascota.especie === 'Gato' ? '🐈' : '🐾'}
                 </span>
               </div>
-              <div className="relative w-full flex justify-center items-center">
-                <h2 className="text-lg font-semibold text-petcast-heading">{mascota.nombre}</h2>
-                {/* Botón editar alineado con el nombre */}
-                <div className="absolute right-0">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => setIsEditFormOpen(true)}
-                        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer bg-gray-100"
-                        aria-label="Editar mascota"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Editar</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-              </div>
-              {mascota.codigoQR && (
-                <p className="text-xs text-petcast-text-light mt-1">{mascota.codigoQR}</p>
-              )}
-            </div>
-
-            {/* Especie */}
-            <div className="mb-4 pb-4 border-b border-petcast-bg-soft">
-              <p className="text-xs text-petcast-text-light uppercase tracking-wide mb-1">Especie</p>
-              <p className="font-medium text-petcast-heading">{mascota.especie}</p>
-            </div>
-
-            {/* Raza */}
-            {mascota.raza && (
-              <div className="mb-4 pb-4 border-b border-petcast-bg-soft">
-                <p className="text-xs text-petcast-text-light uppercase tracking-wide mb-1">Raza</p>
-                <p className="font-medium text-petcast-heading">{mascota.raza}</p>
-              </div>
-            )}
-
-            {/* Edad y Peso */}
-            <div className="grid grid-cols-2 gap-3 mb-4 pb-4 border-b border-petcast-bg-soft">
-              <div>
-                <p className="text-xs text-petcast-text-light uppercase tracking-wide mb-1">Edad</p>
-                <p className="font-medium text-petcast-heading">
-                  {mascota.edad ? `${mascota.edad} años` : 'N/A'}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-petcast-text-light uppercase tracking-wide mb-1">Peso</p>
-                <p className="font-medium text-petcast-heading">
-                  {mascota.peso ? `${mascota.peso} kg` : 'N/A'}
-                </p>
-              </div>
-            </div>
-
-            {/* Sexo */}
-            <div className="mb-4 pb-4 border-b border-petcast-bg-soft">
-              <p className="text-xs text-petcast-text-light uppercase tracking-wide mb-1">Sexo</p>
-              <p className="font-medium text-petcast-heading">
-                {mascota.sexo === 'MACHO' ? 'Macho' : mascota.sexo === 'HEMBRA' ? 'Hembra' : mascota.sexo}
-              </p>
-            </div>
-
-            {/* Color */}
-            {mascota.color && (
-              <div className="mb-5 pb-5 border-b border-petcast-bg-soft">
-                <p className="text-xs text-petcast-text-light uppercase tracking-wide mb-2">Color</p>
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <div
-                    className="w-6 h-6 rounded-full border-2 border-white shadow-sm"
-                    style={{ backgroundColor: mascota.color }}
-                  />
+                  <h2 className="text-lg font-semibold text-petcast-heading truncate">{mascota.nombre}</h2>
+                  {mascota.color && (
+                    <div
+                      className="w-4 h-4 rounded-full shadow-sm flex-shrink-0"
+                      style={{ backgroundColor: mascota.color }}
+                    />
+                  )}
+                </div>
+                <p className="text-sm text-petcast-text-light">
+                  {mascota.especie} {mascota.raza ? `• ${mascota.raza}` : ''}
+                </p>
+                <div className="flex gap-3 mt-1 text-xs text-petcast-text-light">
+                  <span>{mascota.edad ? `${mascota.edad} años` : ''}</span>
+                  <span>{mascota.peso ? `${mascota.peso} kg` : ''}</span>
+                  <span>{mascota.sexo === 'MACHO' ? 'Macho' : mascota.sexo === 'HEMBRA' ? 'Hembra' : ''}</span>
                 </div>
               </div>
-            )}
+              <button
+                onClick={() => setIsEditFormOpen(true)}
+                className="p-1.5 text-gray-400 hover:text-gray-600 bg-gray-100 rounded-lg flex-shrink-0 self-start"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+            </div>
 
             {/* Botón QR */}
             <Button
               variant="outline"
-              className="w-full flex items-center justify-center gap-2 rounded-xl"
+              size="sm"
+              className="w-full mt-4 flex items-center justify-center gap-2 rounded-xl"
               onClick={() => setShowQRModal(true)}
             >
               <QrCode className="w-4 h-4" />
               Ver código QR
             </Button>
           </div>
+
+          {/* Accordions */}
+          <Accordion type="single" collapsible className="space-y-3">
+            {/* Accordion Revisión Médica */}
+            <AccordionItem value="revision" className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <span className="text-sm font-semibold text-petcast-heading">Ultima revision medica</span>
+                  {ultimaFicha && (
+                    <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-700 ml-2">
+                      {ultimaFicha.tipo || 'Consulta'}
+                    </span>
+                  )}
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4">
+                {ultimaFicha ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm text-petcast-text-light bg-blue-50 rounded-lg px-3 py-2">
+                      <Calendar className="w-4 h-4 text-blue-500" />
+                      <span>
+                        {new Date(ultimaFicha.fecha).toLocaleDateString('es-MX', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric'
+                        })}
+                      </span>
+                    </div>
+
+                    {ultimaFicha.diagnostico && (
+                      <div className="bg-gray-50 rounded-xl p-3">
+                        <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">Diagnostico</p>
+                        <p className="text-sm text-petcast-heading">{ultimaFicha.diagnostico}</p>
+                      </div>
+                    )}
+
+                    {ultimaFicha.tratamiento && (
+                      <div className="bg-gray-50 rounded-xl p-3">
+                        <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">Tratamiento</p>
+                        <p className="text-sm text-petcast-heading">{ultimaFicha.tratamiento}</p>
+                      </div>
+                    )}
+
+                    {ultimaFicha.observaciones && (
+                      <div className="bg-gray-50 rounded-xl p-3">
+                        <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">Observaciones</p>
+                        <p className="text-sm text-petcast-heading">{ultimaFicha.observaciones}</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <FileText className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">Sin registros medicos</p>
+                  </div>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Accordion Propietario */}
+            <AccordionItem value="propietario" className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
+                    <User className="w-4 h-4 text-teal-600" />
+                  </div>
+                  <span className="text-sm font-semibold text-petcast-heading">Propietario</span>
+                  {propietario && (
+                    <span className="text-sm text-petcast-text-light ml-2">
+                      {propietario.nombre}
+                    </span>
+                  )}
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4">
+                {propietario ? (
+                  <div className="space-y-3">
+                    <div className="bg-gray-50 rounded-xl p-3">
+                      <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-1">Nombre</p>
+                      <p className="text-sm text-petcast-heading">{propietario.nombre} {propietario.apellido}</p>
+                    </div>
+
+                    {propietario.telefono && (
+                      <div className="bg-gray-50 rounded-xl p-3">
+                        <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-1">Telefono</p>
+                        <p className="text-sm text-petcast-heading">{propietario.telefono}</p>
+                      </div>
+                    )}
+
+                    <div className="bg-gray-50 rounded-xl p-3">
+                      <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-1">Correo</p>
+                      <p className="text-sm text-petcast-heading">{propietario.correoElectronico}</p>
+                    </div>
+
+                    {propietario.direccion && (
+                      <div className="bg-gray-50 rounded-xl p-3">
+                        <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-1">Direccion</p>
+                        <p className="text-sm text-petcast-heading">{propietario.direccion}</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <User className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">Sin propietario asignado</p>
+                  </div>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
+      ) : (
+        /* Layout Desktop */
+        <div className="flex flex-col lg:flex-row gap-6">
 
-        {/* Columna derecha - Notas y Propietario */}
-        <div className="flex-1 flex flex-col gap-6">
+          {/* Columna izquierda - Info de mascota */}
+          <div className="lg:w-64 flex-shrink-0">
+            <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+              {/* Imagen y nombre */}
+              <div className="flex flex-col items-center mb-5 pb-5 border-b border-petcast-bg-soft">
+                <div className="w-28 h-28 bg-petcast-bg-soft rounded-2xl flex items-center justify-center mb-3 overflow-hidden">
+                  <span className="text-5xl">
+                    {mascota.especie === 'Perro' ? '🐕' : mascota.especie === 'Gato' ? '🐈' : '🐾'}
+                  </span>
+                </div>
+                <div className="relative w-full flex justify-center items-center">
+                  <h2 className="text-lg font-semibold text-petcast-heading">{mascota.nombre}</h2>
+                  {/* Botón editar alineado con el nombre */}
+                  <div className="absolute right-0">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => setIsEditFormOpen(true)}
+                          className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer bg-gray-100"
+                          aria-label="Editar mascota"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Editar</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </div>
+                {mascota.codigoQR && (
+                  <p className="text-xs text-petcast-text-light mt-1">{mascota.codigoQR}</p>
+                )}
+              </div>
 
-          {/* Sección de última ficha médica */}
-          <div className="flex-1 bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <h3 className="text-sm font-semibold text-petcast-heading mb-4 flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Última revisión médica
-            </h3>
+              {/* Especie */}
+              <div className="mb-4 pb-4 border-b border-petcast-bg-soft">
+                <p className="text-xs text-petcast-text-light uppercase tracking-wide mb-1">Especie</p>
+                <p className="font-medium text-petcast-heading">{mascota.especie}</p>
+              </div>
 
-            {ultimaFicha ? (
-              <>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2 text-petcast-text-light">
-                    <Calendar className="w-4 h-4" />
-                    <span className="text-sm">
+              {/* Raza */}
+              {mascota.raza && (
+                <div className="mb-4 pb-4 border-b border-petcast-bg-soft">
+                  <p className="text-xs text-petcast-text-light uppercase tracking-wide mb-1">Raza</p>
+                  <p className="font-medium text-petcast-heading">{mascota.raza}</p>
+                </div>
+              )}
+
+              {/* Edad y Peso */}
+              <div className="grid grid-cols-2 gap-3 mb-4 pb-4 border-b border-petcast-bg-soft">
+                <div>
+                  <p className="text-xs text-petcast-text-light uppercase tracking-wide mb-1">Edad</p>
+                  <p className="font-medium text-petcast-heading">
+                    {mascota.edad ? `${mascota.edad} años` : 'N/A'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-petcast-text-light uppercase tracking-wide mb-1">Peso</p>
+                  <p className="font-medium text-petcast-heading">
+                    {mascota.peso ? `${mascota.peso} kg` : 'N/A'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Sexo */}
+              <div className="mb-4 pb-4 border-b border-petcast-bg-soft">
+                <p className="text-xs text-petcast-text-light uppercase tracking-wide mb-1">Sexo</p>
+                <p className="font-medium text-petcast-heading">
+                  {mascota.sexo === 'MACHO' ? 'Macho' : mascota.sexo === 'HEMBRA' ? 'Hembra' : mascota.sexo}
+                </p>
+              </div>
+
+              {/* Color */}
+              {mascota.color && (
+                <div className="mb-5 pb-5 border-b border-petcast-bg-soft">
+                  <p className="text-xs text-petcast-text-light uppercase tracking-wide mb-2">Color</p>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-6 h-6 rounded-full border-2 border-white shadow-sm"
+                      style={{ backgroundColor: mascota.color }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Botón QR */}
+              <Button
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2 rounded-xl"
+                onClick={() => setShowQRModal(true)}
+              >
+                <QrCode className="w-4 h-4" />
+                Ver código QR
+              </Button>
+            </div>
+          </div>
+
+          {/* Columna derecha - Notas y Propietario */}
+          <div className="flex-1 flex flex-col gap-6">
+
+            {/* Sección de última ficha médica */}
+            <div className="flex-1 bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-sm font-semibold text-petcast-heading flex items-center gap-2">
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-blue-600" />
+                  </div>
+                  Ultima revision medica
+                </h3>
+                {ultimaFicha && (
+                  <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">
+                    {ultimaFicha.tipo || 'Consulta'}
+                  </span>
+                )}
+              </div>
+
+              {ultimaFicha ? (
+                <div className="space-y-4">
+                  {/* Fecha */}
+                  <div className="flex items-center gap-2 text-sm text-petcast-text-light bg-blue-50 rounded-lg px-3 py-2">
+                    <Calendar className="w-4 h-4 text-blue-500" />
+                    <span>
                       {new Date(ultimaFicha.fecha).toLocaleDateString('es-MX', {
+                        weekday: 'long',
                         day: 'numeric',
-                        month: 'short',
+                        month: 'long',
                         year: 'numeric'
                       })}
                     </span>
                   </div>
-                  <span className="text-sm font-medium text-petcast-heading">
-                    {ultimaFicha.tipo || 'Consulta'}
-                  </span>
+
+                  {/* Grid de información */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {ultimaFicha.diagnostico && (
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2">Diagnostico</p>
+                        <p className="text-sm text-petcast-heading">{ultimaFicha.diagnostico}</p>
+                      </div>
+                    )}
+
+                    {ultimaFicha.tratamiento && (
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2">Tratamiento</p>
+                        <p className="text-sm text-petcast-heading">{ultimaFicha.tratamiento}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {ultimaFicha.observaciones && (
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2">Observaciones</p>
+                      <p className="text-sm text-petcast-heading leading-relaxed">{ultimaFicha.observaciones}</p>
+                    </div>
+                  )}
                 </div>
-
-                {ultimaFicha.diagnostico && (
-                  <div className="mb-3">
-                    <p className="text-xs text-petcast-text-light uppercase tracking-wide mb-1">Diagnóstico</p>
-                    <p className="text-sm text-petcast-text">{ultimaFicha.diagnostico}</p>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                    <FileText className="w-8 h-8 text-gray-400" />
                   </div>
-                )}
-
-                {ultimaFicha.tratamiento && (
-                  <div className="mb-3">
-                    <p className="text-xs text-petcast-text-light uppercase tracking-wide mb-1">Tratamiento</p>
-                    <p className="text-sm text-petcast-text">{ultimaFicha.tratamiento}</p>
-                  </div>
-                )}
-
-                {ultimaFicha.observaciones && (
-                  <div>
-                    <p className="text-xs text-petcast-text-light uppercase tracking-wide mb-1">Observaciones</p>
-                    <p className="text-sm text-petcast-text leading-relaxed">{ultimaFicha.observaciones}</p>
-                  </div>
-                )}
-              </>
-            ) : (
-              <p className="text-sm text-petcast-text-light">No hay registros médicos disponibles</p>
-            )}
-          </div>
-
-          {/* Sección de Propietario */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <h3 className="text-sm font-semibold text-petcast-heading mb-4">Propietario</h3>
-
-            {propietario ? (
-              <div className="space-y-3">
-                <div className="flex">
-                  <span className="w-24 text-sm text-petcast-text-light flex-shrink-0">Nombre:</span>
-                  <span className="text-sm text-petcast-heading">
-                    {propietario.nombre} {propietario.apellido}
-                  </span>
+                  <p className="text-sm font-medium text-gray-500">Sin registros medicos</p>
+                  <p className="text-xs text-gray-400 mt-1">Aun no hay revisiones registradas</p>
                 </div>
-                {propietario.telefono && (
-                  <div className="flex">
-                    <span className="w-24 text-sm text-petcast-text-light flex-shrink-0">Teléfono:</span>
-                    <span className="text-sm text-petcast-heading">{propietario.telefono}</span>
-                  </div>
-                )}
-                <div className="flex">
-                  <span className="w-24 text-sm text-petcast-text-light flex-shrink-0">Correo:</span>
-                  <span className="text-sm text-petcast-heading">{propietario.correoElectronico}</span>
+              )}
+            </div>
+
+            {/* Sección de Propietario */}
+            <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
+                  <User className="w-4 h-4 text-teal-600" />
                 </div>
-                {propietario.direccion && (
-                  <div className="flex">
-                    <span className="w-24 text-sm text-petcast-text-light flex-shrink-0">Dirección:</span>
-                    <span className="text-sm text-petcast-heading">{propietario.direccion}</span>
-                  </div>
-                )}
+                <h3 className="text-sm font-semibold text-petcast-heading">Propietario</h3>
               </div>
-            ) : (
-              <p className="text-sm text-petcast-text-light">Sin propietario asignado</p>
-            )}
+
+              {propietario ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-2">Nombre</p>
+                    <p className="text-sm text-petcast-heading">{propietario.nombre} {propietario.apellido}</p>
+                  </div>
+
+                  {propietario.telefono && (
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-2">Telefono</p>
+                      <p className="text-sm text-petcast-heading">{propietario.telefono}</p>
+                    </div>
+                  )}
+
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-2">Correo</p>
+                    <p className="text-sm text-petcast-heading">{propietario.correoElectronico}</p>
+                  </div>
+
+                  {propietario.direccion && (
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-2">Direccion</p>
+                      <p className="text-sm text-petcast-heading">{propietario.direccion}</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-6 text-center">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-2">
+                    <User className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <p className="text-sm text-petcast-text-light">Sin propietario asignado</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Modal QR */}
-      <Modal open={showQRModal} onClose={() => setShowQRModal(false)} size="sm">
-        <div className="flex flex-col items-center">
-          <div className="flex items-center justify-between w-full mb-4">
-            <h3 className="text-lg font-semibold text-petcast-heading">Código QR</h3>
-            <button
-              onClick={() => setShowQRModal(false)}
-              className="p-1 rounded-lg hover:bg-gray-100"
-            >
-              <X className="w-5 h-5 text-gray-500" />
-            </button>
+      {/* Modal/Drawer QR */}
+      {isMobile ? (
+        <Drawer open={showQRModal} onOpenChange={setShowQRModal}>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle className="flex items-center gap-2">
+                <QrCode className="w-5 h-5 text-blue-600" />
+                Código QR
+              </DrawerTitle>
+            </DrawerHeader>
+            <div className="flex flex-col items-center px-4 pb-4">
+              <div className="bg-white p-4 rounded-xl border border-gray-200 mb-4">
+                <QRCodeSVG
+                  id="qr-code-svg"
+                  value={qrUrl}
+                  size={180}
+                  level="H"
+                  includeMargin={true}
+                />
+              </div>
+              <p className="text-sm text-petcast-text-light text-center mb-4">
+                Escanea este código para ver la información de <strong>{mascota.nombre}</strong>
+              </p>
+            </div>
+            <DrawerFooter>
+              <Button
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2"
+                onClick={downloadQR}
+              >
+                <Download className="w-4 h-4" />
+                Descargar
+              </Button>
+              <Button
+                variant="primary"
+                className="w-full"
+                onClick={() => {
+                  navigator.clipboard.writeText(qrUrl);
+                  setShowQRModal(false);
+                }}
+              >
+                Copiar enlace
+              </Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Modal open={showQRModal} onClose={() => setShowQRModal(false)} size="sm">
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-3 w-full mb-4">
+              <div className="bg-blue-100 p-2 rounded-lg">
+                <QrCode className="w-5 h-5 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-petcast-heading">Código QR</h3>
+            </div>
+
+            <div className="bg-white p-4 rounded-xl border border-gray-200 mb-4">
+              <QRCodeSVG
+                id="qr-code-svg"
+                value={qrUrl}
+                size={200}
+                level="H"
+                includeMargin={true}
+              />
+            </div>
+
+            <p className="text-sm text-petcast-text-light text-center mb-4">
+              Escanea este código para ver la información de <strong>{mascota.nombre}</strong>
+            </p>
+
+            <div className="flex gap-3 w-full">
+              <Button
+                variant="outline"
+                className="flex-1 flex items-center justify-center gap-2"
+                onClick={downloadQR}
+              >
+                <Download className="w-4 h-4" />
+                Descargar
+              </Button>
+              <Button
+                variant="primary"
+                className="flex-1"
+                onClick={() => {
+                  navigator.clipboard.writeText(qrUrl);
+                  setShowQRModal(false);
+                }}
+              >
+                Copiar enlace
+              </Button>
+            </div>
           </div>
-
-          <div className="bg-white p-4 rounded-xl border border-gray-200 mb-4">
-            <QRCodeSVG
-              id="qr-code-svg"
-              value={qrUrl}
-              size={200}
-              level="H"
-              includeMargin={true}
-            />
-          </div>
-
-          <p className="text-sm text-petcast-text-light text-center mb-4">
-            Escanea este código para ver la información de <strong>{mascota.nombre}</strong>
-          </p>
-
-          <div className="flex gap-3 w-full">
-            <Button
-              variant="outline"
-              className="flex-1 flex items-center justify-center gap-2"
-              onClick={downloadQR}
-            >
-              <Download className="w-4 h-4" />
-              Descargar
-            </Button>
-            <Button
-              variant="primary"
-              className="flex-1"
-              onClick={() => {
-                navigator.clipboard.writeText(qrUrl);
-                setShowQRModal(false);
-              }}
-            >
-              Copiar enlace
-            </Button>
-          </div>
-        </div>
-      </Modal>
+        </Modal>
+      )}
 
       {/* Form Modal/Drawer para editar */}
       <MascotaForm

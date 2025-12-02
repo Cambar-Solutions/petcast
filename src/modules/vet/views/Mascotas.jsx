@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Edit, Trash2, Eye, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Loader2 } from 'lucide-react';
 import { Button, Title, Description, SearchBar, ConfirmDialog } from '@/shared/components';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
 import { MascotaForm } from '../components';
 import { usePets, useCreatePet, useUpdatePet, useDeletePet, useDuenos } from '@/shared/hooks';
 
@@ -183,47 +182,35 @@ export default function Mascotas() {
       {/* Grid de mascotas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredMascotas.map((mascota) => (
-          <div key={mascota.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <div className="flex items-start justify-between mb-3">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center">
+          <div key={mascota.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
                 <span className="text-2xl">
                   {mascota.especie === 'Perro' ? '🐕' : mascota.especie === 'Gato' ? '🐈' : '🐾'}
                 </span>
               </div>
-              <div className="flex gap-1">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => navigate(`/vet/mascota/${mascota.id}`)}
-                      className="p-2 text-blue-500 bg-blue-50 hover:bg-blue-100 hover:scale-110 rounded-lg cursor-pointer transition-all duration-200"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Ver detalles</p>
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => handleOpenDeleteConfirm(mascota)}
-                      className="p-2 text-red-500 bg-red-50 hover:bg-red-100 hover:scale-110 rounded-lg cursor-pointer transition-all duration-200"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Eliminar</p>
-                  </TooltipContent>
-                </Tooltip>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-gray-900 truncate">{mascota.name}</h3>
+                <p className="text-sm text-gray-500 truncate">{mascota.razaDisplay} - {mascota.edad}</p>
               </div>
+              <button
+                onClick={() => handleOpenDeleteConfirm(mascota)}
+                className="p-2 text-red-500 bg-red-50 hover:bg-red-100 hover:scale-110 rounded-lg cursor-pointer transition-all duration-200 flex-shrink-0"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             </div>
-            <h3 className="font-semibold text-gray-900">{mascota.name}</h3>
-            <p className="text-sm text-gray-500">{mascota.razaDisplay} - {mascota.edad}</p>
-            <div className="mt-3 pt-3 border-t border-gray-100">
-              <p className="text-xs text-gray-400">Dueno</p>
-              <p className="text-sm font-medium text-gray-700">{mascota.dueno}</p>
+            <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs text-gray-400">Dueno</p>
+                <p className="text-sm font-medium text-gray-700 truncate">{mascota.dueno}</p>
+              </div>
+              <button
+                onClick={() => navigate(`/vet/mascota/${mascota.id}`)}
+                className="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium flex-shrink-0 ml-2 cursor-pointer"
+              >
+                Ver detalles
+              </button>
             </div>
           </div>
         ))}

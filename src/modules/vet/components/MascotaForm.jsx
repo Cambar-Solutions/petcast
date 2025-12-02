@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User } from 'lucide-react';
+import { User, Check, Pipette } from 'lucide-react';
 import { Modal, Button } from '@/shared/components';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
@@ -17,9 +17,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/shared/components/ui/popover';
 
 const especies = ['Perro', 'Gato', 'Ave', 'Roedor', 'Reptil', 'Otro'];
 const sexos = ['Macho', 'Hembra'];
+
+// Paleta de colores comunes para mascotas
+const petColors = [
+  { name: 'Negro', value: '#1a1a1a' },
+  { name: 'Blanco', value: '#f5f5f5' },
+  { name: 'Gris', value: '#6b7280' },
+  { name: 'Cafe', value: '#8B4513' },
+  { name: 'Dorado', value: '#DAA520' },
+  { name: 'Crema', value: '#F5DEB3' },
+  { name: 'Naranja', value: '#D2691E' },
+  { name: 'Canela', value: '#D2B48C' },
+  { name: 'Chocolate', value: '#5D3A1A' },
+  { name: 'Beige', value: '#E8D5B7' },
+  { name: 'Rojizo', value: '#A0522D' },
+  { name: 'Gris claro', value: '#9CA3AF' },
+];
 
 // Normalizar especie del backend a las opciones del select
 const normalizeEspecie = (especie) => {
@@ -224,15 +245,76 @@ export default function MascotaForm({
           <Label className="text-xs text-petcast-text-light uppercase tracking-wide">
             Color
           </Label>
-          <div className="flex gap-2">
-            <input
-              type="color"
-              name="color"
-              value={formData.color}
-              onChange={handleChange}
-              className="w-12 h-10 rounded-xl border border-petcast-bg-soft cursor-pointer"
-            />
-          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className="w-full h-10 rounded-xl border border-gray-200 flex items-center gap-3 px-3 hover:border-gray-300 transition-colors"
+              >
+                <div
+                  className="w-6 h-6 rounded-full shadow-inner"
+                  style={{ backgroundColor: formData.color }}
+                />
+                <span className="text-sm text-petcast-text">
+                  {petColors.find(c => c.value === formData.color)?.name || 'Personalizado'}
+                </span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 p-3 z-[10001]" align="start" side="top" sideOffset={8}>
+              <div className="space-y-3">
+                <p className="text-xs font-medium text-petcast-text-light uppercase tracking-wide">
+                  Colores comunes
+                </p>
+                <div className="grid grid-cols-6 gap-2">
+                  {petColors.map((color) => (
+                    <button
+                      key={color.value}
+                      type="button"
+                      onClick={() => handleSelectChange('color', color.value)}
+                      className={`w-8 h-8 rounded-full transition-all hover:scale-110 flex items-center justify-center ${
+                        formData.color === color.value ? 'ring-2 ring-blue-500 ring-offset-2' : 'hover:ring-2 hover:ring-gray-300 hover:ring-offset-1'
+                      }`}
+                      style={{ backgroundColor: color.value }}
+                      title={color.name}
+                    >
+                      {formData.color === color.value && (
+                        <Check className={`w-4 h-4 ${color.value === '#f5f5f5' || color.value === '#F5DEB3' || color.value === '#E8D5B7' || color.value === '#D2B48C' ? 'text-gray-700' : 'text-white'}`} />
+                      )}
+                    </button>
+                  ))}
+                </div>
+                <div className="pt-2 border-t border-gray-100">
+                  <p className="text-xs font-medium text-petcast-text-light uppercase tracking-wide mb-2">
+                    Color personalizado
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <input
+                        type="color"
+                        name="color"
+                        value={formData.color}
+                        onChange={handleChange}
+                        className="w-10 h-10 rounded-lg cursor-pointer opacity-0 absolute inset-0"
+                      />
+                      <div
+                        className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center cursor-pointer hover:border-gray-300"
+                        style={{ backgroundColor: formData.color }}
+                      >
+                        <Pipette className={`w-4 h-4 ${['#f5f5f5', '#F5DEB3', '#E8D5B7', '#D2B48C', '#DAA520', '#9CA3AF'].includes(formData.color) ? 'text-gray-700' : 'text-white'}`} />
+                      </div>
+                    </div>
+                    <Input
+                      type="text"
+                      value={formData.color}
+                      onChange={(e) => handleSelectChange('color', e.target.value)}
+                      className="flex-1 rounded-lg text-xs font-mono"
+                      placeholder="#000000"
+                    />
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
@@ -253,10 +335,7 @@ export default function MascotaForm({
           <SelectContent>
             {duenos.map((dueno) => (
               <SelectItem key={dueno.id} value={dueno.id.toString()}>
-                <div className="flex flex-col">
-                  <span>{dueno.name}</span>
-                  <span className="text-xs text-petcast-text-light">{dueno.email}</span>
-                </div>
+                {dueno.name}
               </SelectItem>
             ))}
           </SelectContent>

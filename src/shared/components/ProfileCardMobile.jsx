@@ -1,34 +1,17 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, ChevronRight, Mail, Lock, LogOut } from 'lucide-react';
+import { User, ChevronRight, Pencil, Lock, LogOut } from 'lucide-react';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { Button } from '@/shared/components/ui/button';
 
-const frases = [
-  '"El mejor médico del mundo es el veterinario."',
-  '"Los animales son amigos tan agradables."',
-  '"Un perro te ama más de lo que se ama a sí mismo."',
-  '"Los ojos de un animal tienen el poder de hablar."',
-];
-
 export default function ProfileCardMobile({ user, onLogout }) {
   const [view, setView] = useState('profile');
-  const [currentFrase, setCurrentFrase] = useState(0);
 
   const [formData, setFormData] = useState({ name: '', email: '' });
   const [passwordData, setPasswordData] = useState({ newPassword: '', confirmPassword: '' });
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
-
-  // Rotación de frases
-  useEffect(() => {
-    if (view !== 'profile') return;
-    const interval = setInterval(() => {
-      setCurrentFrase((prev) => (prev + 1) % frases.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [view]);
 
   // Limpiar forms al cambiar vista
   useEffect(() => {
@@ -118,7 +101,7 @@ export default function ProfileCardMobile({ user, onLogout }) {
   const hasPasswordChanges = passwordData.newPassword !== '' && passwordData.confirmPassword !== '';
 
   return (
-    <div className="flex flex-col flex-1">
+    <div className="flex flex-col flex-1 pb-24">
       <AnimatePresence mode="wait">
         {view === 'profile' && (
           <motion.div
@@ -130,74 +113,63 @@ export default function ProfileCardMobile({ user, onLogout }) {
             className="flex flex-col flex-1"
           >
             {/* Header con avatar */}
-            <div className="flex items-center gap-4 px-4 py-6">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center border-2 border-white shadow-lg">
-                <User className="w-8 h-8 text-gray-400" />
+            <div className="flex flex-col items-center gap-3 px-4 py-8">
+              <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center shadow-md border-4 border-white">
+                <User className="w-10 h-10 text-orange-500" />
               </div>
-              <div className="flex-1">
-                <h2 className="text-xl font-semibold text-gray-900">{user?.name || 'Usuario'}</h2>
-                <p className="text-sm text-gray-500">{user?.email}</p>
+              <div className="text-center">
+                <h2 className="text-xl font-semibold text-petcast-heading">{user?.name || 'Usuario'}</h2>
+                <p className="text-sm text-petcast-text-light">{user?.email}</p>
               </div>
-            </div>
-
-            {/* Frase inspiracional */}
-            <div className="px-4 py-4">
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={currentFrase}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="text-gray-500 italic text-sm text-center"
-                >
-                  {frases[currentFrase]}
-                </motion.p>
-              </AnimatePresence>
             </div>
 
             {/* Opciones de menú */}
-            <div className="px-4 mt-4 space-y-2">
+            <div className="px-4 space-y-3">
               <button
                 onClick={() => setView('editProfile')}
-                className="w-full flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 active:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-gray-100 active:bg-gray-50 transition-all"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                    <Mail className="w-5 h-5 text-gray-600" />
+                  <div className="w-10 h-10 bg-petcast-bg-soft rounded-xl flex items-center justify-center">
+                    <Pencil className="w-5 h-5 text-sky-600" />
                   </div>
-                  <span className="font-medium text-gray-900">Editar perfil</span>
+                  <div className="text-left">
+                    <span className="font-medium text-petcast-heading block">Editar perfil</span>
+                    <span className="text-xs text-petcast-text-light">Nombre y correo</span>
+                  </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-gray-400" />
               </button>
 
               <button
                 onClick={() => setView('changePassword')}
-                className="w-full flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 active:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-gray-100 active:bg-gray-50 transition-all"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                    <Lock className="w-5 h-5 text-gray-600" />
+                  <div className="w-10 h-10 bg-petcast-bg-soft rounded-xl flex items-center justify-center">
+                    <Lock className="w-5 h-5 text-sky-600" />
                   </div>
-                  <span className="font-medium text-gray-900">Cambiar contraseña</span>
+                  <div className="text-left">
+                    <span className="font-medium text-petcast-heading block">Cambiar contraseña</span>
+                    <span className="text-xs text-petcast-text-light">Seguridad de tu cuenta</span>
+                  </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-gray-400" />
               </button>
+            </div>
 
-              {onLogout && (
+            {/* Cerrar sesión separado */}
+            {onLogout && (
+              <div className="px-4 mt-auto pt-8">
                 <button
                   onClick={onLogout}
-                  className="w-full flex items-center justify-between p-4 bg-white rounded-xl border border-red-100 active:bg-red-50 transition-colors mt-4"
+                  className="w-full flex items-center justify-center gap-2 p-4 bg-red-500 rounded-2xl active:bg-red-600 transition-all"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center">
-                      <LogOut className="w-5 h-5 text-red-500" />
-                    </div>
-                    <span className="font-medium text-red-600">Cerrar sesión</span>
-                  </div>
+                  <LogOut className="w-5 h-5 text-white" />
+                  <span className="font-medium text-white">Cerrar sesión</span>
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </motion.div>
         )}
 
