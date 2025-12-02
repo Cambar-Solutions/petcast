@@ -9,3 +9,8 @@ export { default as ProfileCard } from './ProfileCard';
 export { default as ProfileCardMobile } from './ProfileCardMobile';
 export { default as ActividadReciente } from './ActividadReciente';
 export { default as ActividadRecienteMobile } from './ActividadRecienteMobile';
+
+// Componentes de WhatsApp
+export { default as WhatsappStatus } from './WhatsappStatus';
+export { default as VaccinationReminderForm } from './VaccinationReminderForm';
+export { default as AppointmentReminderForm } from './AppointmentReminderForm';

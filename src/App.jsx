@@ -22,6 +22,7 @@ import {
   Duenos,
   Citas,
   FichaMedica,
+  Recordatorios,
 } from '@/modules/vet';
 
 import {
@@ -155,6 +156,16 @@ function App() {
               <ProtectedRoute allowedRoles={['VET']}>
                 <MainLayout>
                   <FichaMedica />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/vet/recordatorios"
+            element={
+              <ProtectedRoute allowedRoles={['VET']}>
+                <MainLayout>
+                  <Recordatorios />
                 </MainLayout>
               </ProtectedRoute>
             }

@@ -7,6 +7,7 @@ export { default as MascotaDetalle } from './views/MascotaDetalle';
 export { default as Duenos } from './views/Duenos';
 export { default as Citas } from './views/Citas';
 export { default as FichaMedica } from './views/FichaMedica';
+export { default as Recordatorios } from './views/Recordatorios';
 
 // Componentes
 // export { default as VetAppointments } from './components/VetAppointments';

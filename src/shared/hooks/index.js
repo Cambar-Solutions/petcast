@@ -59,3 +59,30 @@ export {
 
 // Hook de responsive
 export { default as useIsMobile } from './useIsMobile';
+
+// Hooks de WhatsApp
+export {
+  useWhatsappStatus,
+  useWhatsappQR,
+  useSendWhatsappMessage,
+  useSendBulkWhatsappMessage,
+  useSendAppointmentReminder,
+  useSendVaccinationReminder,
+  useSendAppointmentConfirmation,
+  useForceWhatsappLogout,
+} from './useWhatsapp';
+
+// Hooks de recordatorios
+export {
+  useReminders,
+  usePendingReminders,
+  useReminder,
+  useRemindersByOwner,
+  useCreateReminder,
+  useUpdateReminder,
+  useDeleteReminder,
+  useSendReminder,
+  useSendVaccinationReminderNow,
+  useSendAppointmentReminderNow,
+  useProcessAllReminders,
+} from './useReminders';
