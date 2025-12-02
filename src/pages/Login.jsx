@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronUp, Phone, KeyRound, CheckCircle } from 'lucide-react';
+import { Phone, KeyRound, CheckCircle } from 'lucide-react';
 import { Input, Button } from '../shared/components';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/shared/components/ui/tabs';
 import { useAuth } from '../shared/context/AuthContext';
@@ -32,7 +32,6 @@ export default function Login() {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [showCredentials, setShowCredentials] = useState(false);
   const [recoverySuccess, setRecoverySuccess] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
 
@@ -236,29 +235,6 @@ export default function Login() {
             </div>
           )}
 
-          {/* Credenciales de prueba - Desplegable */}
-          <div className="mb-4">
-            <button
-              type="button"
-              onClick={() => setShowCredentials(!showCredentials)}
-              className="w-full flex items-center justify-between p-3 bg-petcast-bg-soft/50 border border-petcast-bg-soft rounded-xl text-petcast-text text-sm hover:bg-petcast-bg-soft transition-colors"
-            >
-              <span className="font-medium">Credenciales de prueba</span>
-              {showCredentials ? (
-                <ChevronUp className="w-4 h-4" />
-              ) : (
-                <ChevronDown className="w-4 h-4" />
-              )}
-            </button>
-            {showCredentials && (
-              <div className="mt-2 p-3 bg-petcast-bg-soft/30 border border-petcast-bg-soft rounded-xl text-sm text-petcast-text space-y-1">
-                <p><span className="font-medium">Admin:</span> admin@petcast.com / 123456</p>
-                <p><span className="font-medium">Vet:</span> carlos.vet@petcast.com / 123456</p>
-                <p><span className="font-medium">Dueño:</span> maria@email.com / 123456</p>
-              </div>
-            )}
-          </div>
-
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={resetRecovery} className="w-full">
             <TabsList className="w-full">
@@ -339,22 +315,6 @@ export default function Login() {
                 </div>
               ) : (
                 <>
-                  {/* Indicador de pasos */}
-                  <div className="flex items-center justify-center gap-2 mb-6">
-                    {[1, 2, 3].map((step) => (
-                      <div
-                        key={step}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                          recoveryStep >= step
-                            ? 'bg-petcast-heading text-white'
-                            : 'bg-petcast-bg-soft text-petcast-text-light'
-                        }`}
-                      >
-                        {step}
-                      </div>
-                    ))}
-                  </div>
-
                   {/* Paso 1: Telefono */}
                   {recoveryStep === 1 && (
                     <form onSubmit={handleSendCode} className="space-y-5">
