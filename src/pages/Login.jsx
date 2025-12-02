@@ -4,10 +4,20 @@ import { ChevronDown, ChevronUp, Phone, KeyRound, CheckCircle } from 'lucide-rea
 import { Input, Button } from '../shared/components';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/shared/components/ui/tabs';
 import { useAuth } from '../shared/context/AuthContext';
+import {
+  useSolicitarCodigoWhatsApp,
+  useVerificarCodigoWhatsApp,
+  useResetContrasenaWhatsApp,
+} from '@/shared/hooks';
 
 export default function Login() {
   const navigate = useNavigate();
   const { login, getRedirectPath } = useAuth();
+
+  // Hooks de recuperación de contraseña
+  const solicitarCodigo = useSolicitarCodigoWhatsApp();
+  const verificarCodigo = useVerificarCodigoWhatsApp();
+  const resetContrasena = useResetContrasenaWhatsApp();
 
   const [loginData, setLoginData] = useState({
     email: '',
@@ -106,13 +116,13 @@ export default function Login() {
       return;
     }
 
-    setIsLoading(true);
-    // Simular envío de código
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await solicitarCodigo.mutateAsync(recoveryData.phone);
       setRecoveryStep(2);
       setErrors({});
-    }, 1500);
+    } catch (err) {
+      // El hook ya muestra el toast de error
+    }
   };
 
   const handleVerifyCode = async (e) => {
@@ -130,13 +140,16 @@ export default function Login() {
       return;
     }
 
-    setIsLoading(true);
-    // Simular verificación (cualquier código de 6 dígitos funciona)
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await verificarCodigo.mutateAsync({
+        telefono: recoveryData.phone,
+        codigo: recoveryData.code,
+      });
       setRecoveryStep(3);
       setErrors({});
-    }, 1000);
+    } catch (err) {
+      // El hook ya muestra el toast de error
+    }
   };
 
   const handleResetPassword = async (e) => {
@@ -160,18 +173,23 @@ export default function Login() {
       return;
     }
 
-    setIsLoading(true);
-    // Simular cambio de contraseña
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await resetContrasena.mutateAsync({
+        telefono: recoveryData.phone,
+        codigo: recoveryData.code,
+        nuevaContrasena: recoveryData.newPassword,
+      });
       setRecoverySuccess(true);
       // Reset después de 3 segundos
       setTimeout(() => {
         setRecoveryStep(1);
         setRecoveryData({ phone: '', code: '', newPassword: '', confirmPassword: '' });
         setRecoverySuccess(false);
+        setActiveTab('login');
       }, 3000);
-    }, 1500);
+    } catch (err) {
+      // El hook ya muestra el toast de error
+    }
   };
 
   const resetRecovery = (newTab) => {
@@ -365,9 +383,10 @@ export default function Login() {
                         variant="primary"
                         className="w-full"
                         size="lg"
-                        disabled={isLoading}
+                        disabled={solicitarCodigo.isPending}
+                        loading={solicitarCodigo.isPending}
                       >
-                        {isLoading ? 'Enviando...' : 'Enviar codigo'}
+                        {solicitarCodigo.isPending ? 'Enviando...' : 'Enviar codigo por WhatsApp'}
                       </Button>
                     </form>
                   )}
@@ -380,7 +399,7 @@ export default function Login() {
                           <KeyRound className="w-6 h-6 text-petcast-heading" />
                         </div>
                         <p className="text-sm text-petcast-text-light">
-                          Ingresa el codigo de 6 digitos que enviamos a
+                          Ingresa el codigo de 6 digitos que enviamos por WhatsApp a
                         </p>
                         <p className="text-sm font-medium text-petcast-heading">
                           {recoveryData.phone}
@@ -400,7 +419,7 @@ export default function Login() {
                       />
 
                       <p className="text-xs text-petcast-text-light text-center">
-                        (Simulado: cualquier codigo de 6 digitos funciona)
+                        El codigo expira en 10 minutos
                       </p>
 
                       <Button
@@ -408,9 +427,10 @@ export default function Login() {
                         variant="primary"
                         className="w-full"
                         size="lg"
-                        disabled={isLoading}
+                        disabled={verificarCodigo.isPending}
+                        loading={verificarCodigo.isPending}
                       >
-                        {isLoading ? 'Verificando...' : 'Verificar codigo'}
+                        {verificarCodigo.isPending ? 'Verificando...' : 'Verificar codigo'}
                       </Button>
 
                       <button
@@ -459,9 +479,10 @@ export default function Login() {
                         variant="primary"
                         className="w-full"
                         size="lg"
-                        disabled={isLoading}
+                        disabled={resetContrasena.isPending}
+                        loading={resetContrasena.isPending}
                       >
-                        {isLoading ? 'Guardando...' : 'Guardar contrasena'}
+                        {resetContrasena.isPending ? 'Guardando...' : 'Guardar contrasena'}
                       </Button>
                     </form>
                   )}

@@ -86,3 +86,10 @@ export {
   useSendAppointmentReminderNow,
   useProcessAllReminders,
 } from './useReminders';
+
+// Hooks de recuperación de contraseña
+export {
+  useSolicitarCodigoWhatsApp,
+  useVerificarCodigoWhatsApp,
+  useResetContrasenaWhatsApp,
+} from './usePasswordRecovery';

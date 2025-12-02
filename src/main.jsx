@@ -11,21 +11,23 @@ createRoot(document.getElementById('root')).render(
     <QueryClientProvider client={queryClient}>
       <App />
       <Toaster
-        position="top-right"
+        position="bottom-right"
         toastOptions={{
           duration: 3000,
           style: {
-            background: '#363636',
-            color: '#fff',
+            background: '#4b5563',
+            color: '#f9fafb',
           },
           success: {
             style: {
-              background: '#10b981',
+              background: '#4b5563',
+              color: '#f9fafb',
             },
           },
           error: {
             style: {
-              background: '#ef4444',
+              background: '#7f1d1d',
+              color: '#fef2f2',
             },
           },
         }}

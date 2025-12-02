@@ -19,7 +19,7 @@ const Button = forwardRef(({
     success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500',
     warning: 'bg-orange-600 text-white hover:bg-orange-700 focus:ring-orange-500',
     // Variante circular que se convierte en normal en desktop
-    circular: 'bg-blue-900 text-white hover:bg-blue-800 focus:ring-blue-500 shadow-sm hover:shadow-md rounded-full w-12 h-12 p-0 sm:rounded-lg sm:w-auto sm:h-auto sm:px-4 sm:py-2.5',
+    circular: 'bg-transparent border-2 border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white focus:ring-blue-500 rounded-full w-12 h-12 p-0 sm:rounded-lg sm:w-auto sm:h-auto sm:px-4 sm:py-2.5',
   };
 
   const sizes = {
