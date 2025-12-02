@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Phone, Mail, Loader2 } from 'lucide-react';
-import { Button, SearchBar, ConfirmDialog } from '@/shared/components';
+import { Button, Title, Description, SearchBar, ConfirmDialog } from '@/shared/components';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
 import { DuenoForm } from '../components';
 import { useDuenos, useCreateUser, useUpdateUser, useDeleteUser, usePets } from '@/shared/hooks';
@@ -132,19 +132,21 @@ export default function Duenos() {
 
   return (
     <div className="space-y-6 pb-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Duenos</h1>
-          <p className="text-gray-600">Gestiona los duenos de mascotas</p>
+          <Title variant="page-title">Dueños</Title>
+          <Description variant="section-description" mobileText="Gestión de dueños">
+            Gestiona los dueños de mascotas
+          </Description>
         </div>
         <Button
-          variant="primary"
-          className="flex items-center gap-2"
+          variant="circular"
+          size="md-mobile"
           onClick={handleOpenCreate}
           disabled={createUser.isPending}
         >
-          <Plus className="w-4 h-4" />
-          Nuevo Dueno
+          <Plus className="w-5 h-5 sm:w-4 sm:h-4 sm:mr-2" />
+          <span className="hidden sm:inline">Nuevo Dueño</span>
         </Button>
       </div>
 

@@ -1,5 +1,5 @@
 import { User, Mail, Phone, Building } from 'lucide-react';
-import { Button } from '@/shared/components';
+import { Button, Title, Description } from '@/shared/components';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { useAuth } from '@/shared/context/AuthContext';
@@ -10,8 +10,10 @@ export default function AdminPerfil() {
   return (
     <div className="space-y-6 pb-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Mi Perfil</h1>
-        <p className="text-gray-600">Administra tu informacion personal</p>
+        <Title variant="page-title">Mi Perfil</Title>
+        <Description variant="section-description" mobileText="Administra tu información">
+          Administra tu informacion personal
+        </Description>
       </div>
 
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">

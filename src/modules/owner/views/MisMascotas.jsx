@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PawPrint, Calendar, ChevronRight } from 'lucide-react';
-import { SearchBar } from '@/shared/components';
+import { Title, Description, SearchBar } from '@/shared/components';
 
 export default function MisMascotas() {
   const navigate = useNavigate();
@@ -21,8 +21,10 @@ export default function MisMascotas() {
   return (
     <div className="space-y-6 pb-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Mis Mascotas</h1>
-        <p className="text-gray-600">Tus mascotas registradas</p>
+        <Title variant="page-title">Mis Mascotas</Title>
+        <Description variant="section-description" mobileText="Tus mascotas">
+          Tus mascotas registradas
+        </Description>
       </div>
 
       {/* Buscador */}

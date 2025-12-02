@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Calendar, Clock, PawPrint, Loader2 } from 'lucide-react';
-import { Button, SearchBar } from '@/shared/components';
+import { Button, Title, Description, SearchBar } from '@/shared/components';
 import { CitaForm } from '../components';
 import { useAppointments, useCreateAppointment, useUpdateAppointment, usePets, useDuenos } from '@/shared/hooks';
 
@@ -170,19 +170,21 @@ export default function Citas() {
 
   return (
     <div className="space-y-6 pb-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Citas</h1>
-          <p className="text-gray-600">Gestiona las citas de tus pacientes</p>
+          <Title variant="page-title">Citas</Title>
+          <Description variant="section-description" mobileText="Gestión de citas">
+            Gestiona las citas de tus pacientes
+          </Description>
         </div>
         <Button
-          variant="primary"
-          className="flex items-center gap-2"
+          variant="circular"
+          size="md-mobile"
           onClick={handleOpenCreate}
           disabled={createAppointment.isPending}
         >
-          <Plus className="w-4 h-4" />
-          Nueva Cita
+          <Plus className="w-5 h-5 sm:w-4 sm:h-4 sm:mr-2" />
+          <span className="hidden sm:inline">Nueva Cita</span>
         </Button>
       </div>
 

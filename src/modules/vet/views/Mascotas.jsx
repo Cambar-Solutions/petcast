@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Edit, Trash2, Eye, Loader2 } from 'lucide-react';
-import { Button, SearchBar, ConfirmDialog } from '@/shared/components';
+import { Button, Title, Description, SearchBar, ConfirmDialog } from '@/shared/components';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
 import { MascotaForm } from '../components';
 import { usePets, useCreatePet, useUpdatePet, useDeletePet, useDuenos } from '@/shared/hooks';
@@ -154,19 +154,21 @@ export default function Mascotas() {
 
   return (
     <div className="space-y-6 pb-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Mascotas</h1>
-          <p className="text-gray-600">Gestiona las mascotas registradas</p>
+          <Title variant="page-title">Mascotas</Title>
+          <Description variant="section-description" mobileText="Gestión de mascotas">
+            Gestiona las mascotas registradas
+          </Description>
         </div>
         <Button
-          variant="primary"
-          className="flex items-center gap-2"
+          variant="circular"
+          size="md-mobile"
           onClick={handleOpenCreate}
           disabled={createPet.isPending}
         >
-          <Plus className="w-4 h-4" />
-          Nueva Mascota
+          <Plus className="w-5 h-5 sm:w-4 sm:h-4 sm:mr-2" />
+          <span className="hidden sm:inline">Nueva Mascota</span>
         </Button>
       </div>
 

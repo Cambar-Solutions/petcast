@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Calendar, Clock, PawPrint } from 'lucide-react';
-import { SearchBar } from '@/shared/components';
+import { Title, Description, SearchBar } from '@/shared/components';
 
 export default function MisCitas() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,8 +29,10 @@ export default function MisCitas() {
   return (
     <div className="space-y-6 pb-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Mis Citas</h1>
-        <p className="text-gray-600">Proximas citas de tus mascotas</p>
+        <Title variant="page-title">Mis Citas</Title>
+        <Description variant="section-description" mobileText="Próximas citas">
+          Proximas citas de tus mascotas
+        </Description>
       </div>
 
       {/* Buscador */}

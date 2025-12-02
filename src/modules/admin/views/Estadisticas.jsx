@@ -1,11 +1,14 @@
 import { TrendingUp, Users, Calendar, PawPrint } from 'lucide-react';
+import { Title, Description } from '@/shared/components';
 
 export default function Estadisticas() {
   return (
     <div className="space-y-6 pb-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Estadisticas</h1>
-        <p className="text-gray-600">Metricas y reportes de tu clinica</p>
+        <Title variant="page-title">Estadisticas</Title>
+        <Description variant="section-description" mobileText="Métricas y reportes">
+          Metricas y reportes de tu clinica
+        </Description>
       </div>
 
       {/* Cards de estadisticas */}
@@ -49,7 +52,7 @@ export default function Estadisticas() {
 
       {/* Grafico placeholder */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Citas por mes</h2>
+        <Title variant="card-title" className="mb-4">Citas por mes</Title>
         <div className="h-64 bg-gray-50 rounded-xl flex items-center justify-center">
           <p className="text-gray-400">Grafico de citas (proximamente)</p>
         </div>
@@ -57,7 +60,7 @@ export default function Estadisticas() {
 
       {/* Tabla resumen */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Top Veterinarios</h2>
+        <Title variant="card-title" className="mb-4">Top Veterinarios</Title>
         <div className="space-y-3">
           {['Dr. Carlos Martinez', 'Dra. Ana Lopez', 'Dr. Pedro Sanchez'].map((name, i) => (
             <div key={name} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">

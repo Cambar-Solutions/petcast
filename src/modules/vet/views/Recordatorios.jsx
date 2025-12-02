@@ -16,6 +16,8 @@ import {
   AppointmentReminderForm,
   Card,
   Button,
+  Title,
+  Description,
   Modal
 } from '@/shared/components';
 import {
@@ -84,13 +86,13 @@ export default function Recordatorios() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-petcast-heading flex items-center gap-3">
+        <Title variant="page-title" className="flex items-center gap-3">
           <Bell className="w-7 h-7 text-petcast-heading" />
           Recordatorios y WhatsApp
-        </h1>
-        <p className="text-gray-600 mt-1">
+        </Title>
+        <Description variant="section-description" mobileText="Gestión de recordatorios" className="mt-1">
           Gestiona los recordatorios y mensajes de WhatsApp para tus pacientes
-        </p>
+        </Description>
       </div>
 
       {/* Tabs */}
