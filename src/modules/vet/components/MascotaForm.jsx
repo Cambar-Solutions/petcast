@@ -88,7 +88,7 @@ export default function MascotaForm({
       nombre: mascotaData.nombre || mascotaData.name || '',
       especie: normalizeEspecie(mascotaData.especie),
       raza: mascotaData.raza || '',
-      edad: mascotaData.edadNum?.toString() || '',
+      edad: (mascotaData.edadNum ?? mascotaData.edad)?.toString() || '',
       peso: mascotaData.peso?.toString() || '',
       sexo: sexoNormalizado,
       color: mascotaData.color || '#8B4513',

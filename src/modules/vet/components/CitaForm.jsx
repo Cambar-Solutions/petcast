@@ -34,6 +34,9 @@ export default function CitaForm({
 }) {
   const isEditing = !!cita;
 
+  // Key única para forzar re-render de selects
+  const formKey = cita?.id || 'new';
+
   const [formData, setFormData] = useState({
     mascotaId: '',
     duenoId: '',
@@ -109,6 +112,7 @@ export default function CitaForm({
           Dueño
         </Label>
         <Select
+          key={`dueno-${formKey}-${formData.duenoId}`}
           value={formData.duenoId}
           onValueChange={(value) => handleSelectChange('duenoId', value)}
         >
@@ -132,6 +136,7 @@ export default function CitaForm({
           Mascota
         </Label>
         <Select
+          key={`mascota-${formKey}-${formData.mascotaId}`}
           value={formData.mascotaId}
           onValueChange={(value) => handleSelectChange('mascotaId', value)}
           disabled={!formData.duenoId}
@@ -190,6 +195,7 @@ export default function CitaForm({
             Tipo de cita
           </Label>
           <Select
+            key={`tipo-${formKey}-${formData.tipo}`}
             value={formData.tipo}
             onValueChange={(value) => handleSelectChange('tipo', value)}
           >
@@ -209,6 +215,7 @@ export default function CitaForm({
         <div className="space-y-2">
           <Label>Estado</Label>
           <Select
+            key={`status-${formKey}-${formData.status}`}
             value={formData.status}
             onValueChange={(value) => handleSelectChange('status', value)}
           >
@@ -285,7 +292,7 @@ export default function CitaForm({
   }
 
   return (
-    <Modal open={isOpen} onClose={onClose} size="md">
+    <Modal open={isOpen} onClose={onClose} size="md" key={formKey}>
       <h3 className="text-xl font-semibold text-gray-900 mb-4">
         {isEditing ? 'Editar Cita' : 'Nueva Cita'}
       </h3>

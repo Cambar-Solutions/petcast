@@ -38,9 +38,9 @@ export default function MascotaDetalle() {
   // Obtener propietario
   const propietario = duenos.find(d => d.id === mascota?.duenoId);
 
-  // Obtener última ficha médica
+  // Obtener última ficha médica (ordenar por fechaConsulta del backend)
   const ultimaFicha = fichasMedicas.length > 0
-    ? fichasMedicas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha))[0]
+    ? fichasMedicas.sort((a, b) => new Date(b.fechaConsulta) - new Date(a.fechaConsulta))[0]
     : null;
 
   // URL para el QR (ruta pública)
@@ -208,7 +208,7 @@ export default function MascotaDetalle() {
                     <div className="flex items-center gap-2 text-sm text-petcast-text-light bg-blue-50 rounded-lg px-3 py-2">
                       <Calendar className="w-4 h-4 text-blue-500" />
                       <span>
-                        {new Date(ultimaFicha.fecha).toLocaleDateString('es-MX', {
+                        {new Date(ultimaFicha.fechaConsulta).toLocaleDateString('es-MX', {
                           day: 'numeric',
                           month: 'short',
                           year: 'numeric'
@@ -425,7 +425,7 @@ export default function MascotaDetalle() {
                   <div className="flex items-center gap-2 text-sm text-petcast-text-light bg-blue-50 rounded-lg px-3 py-2">
                     <Calendar className="w-4 h-4 text-blue-500" />
                     <span>
-                      {new Date(ultimaFicha.fecha).toLocaleDateString('es-MX', {
+                      {new Date(ultimaFicha.fechaConsulta).toLocaleDateString('es-MX', {
                         weekday: 'long',
                         day: 'numeric',
                         month: 'long',

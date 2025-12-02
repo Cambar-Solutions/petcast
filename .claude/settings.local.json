@@ -15,7 +15,10 @@
       "Bash(tree:*)",
       "Bash(cat:*)",
       "Bash(xargs ls:*)",
-      "Bash(git -C /c/petcast log:*)"
+      "Bash(git -C /c/petcast log:*)",
+      "Bash(dir /s /b \"c:\\Users\\jonyo\\petcast-service\\*.controller.ts\")",
+      "Bash(dir /s /b c:Usersjonyopetcast-serviceapps)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []
