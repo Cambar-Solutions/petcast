@@ -23,7 +23,7 @@ export default function MascotaPublica() {
       <div className="min-h-screen bg-petcast-bg flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="w-8 h-8 animate-spin text-petcast-main" />
-          <p className="text-sm text-petcast-text-light">Cargando informacion...</p>
+          <p className="text-sm text-petcast-text-light">Cargando información...</p>
         </div>
       </div>
     );
@@ -39,7 +39,7 @@ export default function MascotaPublica() {
           </div>
           <h1 className="text-xl font-semibold text-petcast-heading mb-2">Mascota no encontrada</h1>
           <p className="text-sm text-petcast-text-light">
-            El codigo QR no corresponde a ninguna mascota registrada.
+            El código QR no corresponde a ninguna mascota registrada.
           </p>
         </div>
       </div>
@@ -51,7 +51,7 @@ export default function MascotaPublica() {
       <div className="max-w-md mx-auto space-y-4">
         {/* Header */}
         <div className="text-center mb-2">
-          <p className="text-xs text-petcast-text-light uppercase tracking-wider">Identificacion de Mascota</p>
+          <p className="text-xs text-petcast-text-light uppercase tracking-wider">Identificación de Mascota</p>
         </div>
 
         {/* Card principal - Info de mascota */}
@@ -139,7 +139,7 @@ export default function MascotaPublica() {
                         <Phone className="w-4 h-4 text-green-600" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-xs text-petcast-text-light">Telefono</p>
+                        <p className="text-xs text-petcast-text-light">Teléfono</p>
                         <p className="text-sm font-medium text-petcast-heading">{propietario.telefono}</p>
                       </div>
                     </a>
@@ -168,7 +168,7 @@ export default function MascotaPublica() {
                         <MapPin className="w-4 h-4 text-gray-600" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-xs text-petcast-text-light">Direccion</p>
+                        <p className="text-xs text-petcast-text-light">Dirección</p>
                         <p className="text-sm font-medium text-petcast-heading">{propietario.direccion}</p>
                       </div>
                     </div>
@@ -191,7 +191,7 @@ export default function MascotaPublica() {
                   <PawPrint className="w-4 h-4 text-petcast-main" />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-semibold text-petcast-heading">Informacion Completa</p>
+                  <p className="text-sm font-semibold text-petcast-heading">Información Completa</p>
                   <p className="text-xs text-petcast-text-light">Detalles de la mascota</p>
                 </div>
               </div>
@@ -261,7 +261,7 @@ export default function MascotaPublica() {
                   <FileText className="w-4 h-4 text-blue-600" />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-semibold text-petcast-heading">Historial Medico</p>
+                  <p className="text-sm font-semibold text-petcast-heading">Historial Médico</p>
                   <p className="text-xs text-petcast-text-light">
                     {fichasOrdenadas.length} {fichasOrdenadas.length === 1 ? 'registro' : 'registros'}
                   </p>
@@ -294,7 +294,7 @@ export default function MascotaPublica() {
                         <div className="mb-2">
                           <div className="flex items-center gap-1.5 mb-1">
                             <Stethoscope className="w-3 h-3 text-blue-500" />
-                            <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Diagnostico</p>
+                            <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Diagnóstico</p>
                           </div>
                           <p className="text-sm text-petcast-heading">{ficha.diagnostico}</p>
                         </div>
@@ -327,7 +327,7 @@ export default function MascotaPublica() {
               ) : (
                 <div className="text-center py-6">
                   <FileText className="w-10 h-10 text-gray-200 mx-auto mb-2" />
-                  <p className="text-sm text-petcast-text-light">Sin historial medico</p>
+                  <p className="text-sm text-petcast-text-light">Sin historial médico</p>
                 </div>
               )}
             </AccordionContent>

@@ -102,17 +102,17 @@ export default function VaccinationReminderForm({
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Seleccionar Dueno */}
+      {/* Seleccionar Dueño */}
       <div className="space-y-1.5">
         <Label className="text-xs text-petcast-text-light uppercase tracking-wide">
-          Dueno *
+          Dueño *
         </Label>
         <Select
           value={selectedOwnerId}
           onValueChange={(value) => setSelectedOwnerId(value)}
         >
           <SelectTrigger className="w-full rounded-xl">
-            <SelectValue placeholder={loadingDuenos ? 'Cargando...' : 'Selecciona un dueno'} />
+            <SelectValue placeholder={loadingDuenos ? 'Cargando...' : 'Selecciona un dueño'} />
           </SelectTrigger>
           <SelectContent>
             {duenos.map((dueno) => (
@@ -146,7 +146,7 @@ export default function VaccinationReminderForm({
             </SelectContent>
           </Select>
           {!loadingMascotas && mascotas.length === 0 && (
-            <p className="text-sm text-amber-600 mt-1">Este dueno no tiene mascotas registradas</p>
+            <p className="text-sm text-amber-600 mt-1">Este dueño no tiene mascotas registradas</p>
           )}
         </div>
       )}

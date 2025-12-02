@@ -269,7 +269,7 @@ export default function Veterinarios() {
         onClose={handleCloseConfirm}
         onConfirm={handleConfirmDelete}
         title="Eliminar veterinario"
-        message={`Estas seguro de eliminar a ${vetToDelete?.name}? Esta accion no se puede deshacer.`}
+        message={`¿Estás seguro de eliminar a ${vetToDelete?.name}? Esta acción no se puede deshacer.`}
         confirmText="Eliminar"
         cancelText="Cancelar"
         variant="danger"

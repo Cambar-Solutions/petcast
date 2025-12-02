@@ -154,7 +154,7 @@ export default function Duenos() {
 
       {/* Buscador */}
       <SearchBar
-        placeholder="Buscar dueno..."
+        placeholder="Buscar dueño..."
         value={searchTerm}
         onChange={setSearchTerm}
         debounceMs={300}
@@ -293,7 +293,7 @@ export default function Duenos() {
         isOpen={isConfirmOpen}
         onClose={handleCloseConfirm}
         onConfirm={handleConfirmDelete}
-        title="Eliminar dueno"
+        title="Eliminar dueño"
         message={`Estas seguro de eliminar a ${duenoToDelete?.name}? Esta accion no se puede deshacer.`}
         confirmText="Eliminar"
         cancelText="Cancelar"

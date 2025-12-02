@@ -5,9 +5,9 @@ export default function Estadisticas() {
   return (
     <div className="space-y-6 pb-8">
       <div>
-        <Title variant="page-title">Estadisticas</Title>
+        <Title variant="page-title">Estadísticas</Title>
         <Description variant="section-description" mobileText="Métricas y reportes">
-          Metricas y reportes de tu clinica
+          Métricas y reportes de tu clínica
         </Description>
       </div>
 
@@ -42,11 +42,11 @@ export default function Estadisticas() {
 
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-sm text-gray-500">Promedio citas/dia</span>
+            <span className="text-sm text-gray-500">Promedio citas/día</span>
             <Calendar className="w-5 h-5 text-orange-500" />
           </div>
           <p className="text-3xl font-bold text-gray-900">12</p>
-          <p className="text-sm text-gray-500">Dias laborales</p>
+          <p className="text-sm text-gray-500">Días laborales</p>
         </div>
       </div>
 
@@ -54,7 +54,7 @@ export default function Estadisticas() {
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <Title variant="card-title" className="mb-4">Citas por mes</Title>
         <div className="h-64 bg-gray-50 rounded-xl flex items-center justify-center">
-          <p className="text-gray-400">Grafico de citas (proximamente)</p>
+          <p className="text-gray-400">Gráfico de citas (próximamente)</p>
         </div>
       </div>
 

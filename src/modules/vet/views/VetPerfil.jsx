@@ -12,7 +12,7 @@ export default function VetPerfil() {
       <div>
         <Title variant="page-title">Mi Perfil</Title>
         <Description variant="section-description" mobileText="Tu información profesional">
-          Administra tu informacion profesional
+          Administra tu información profesional
         </Description>
       </div>
 
@@ -53,7 +53,7 @@ export default function VetPerfil() {
             <div className="space-y-2">
               <Label htmlFor="email" className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-gray-400" />
-                Correo electronico
+                Correo electrónico
               </Label>
               <Input
                 id="email"
@@ -67,7 +67,7 @@ export default function VetPerfil() {
             <div className="space-y-2">
               <Label htmlFor="phone" className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-gray-400" />
-                Telefono
+                Teléfono
               </Label>
               <Input
                 id="phone"

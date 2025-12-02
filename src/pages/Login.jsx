@@ -72,13 +72,13 @@ export default function Login() {
     if (!loginData.email) {
       newErrors.email = 'El email es requerido';
     } else if (!/\S+@\S+\.\S+/.test(loginData.email)) {
-      newErrors.email = 'Email invalido';
+      newErrors.email = 'Email inválido';
     }
 
     if (!loginData.password) {
-      newErrors.password = 'La contrasena es requerida';
+      newErrors.password = 'La contraseña es requerida';
     } else if (loginData.password.length < 6) {
-      newErrors.password = 'La contrasena debe tener al menos 6 caracteres';
+      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -105,9 +105,9 @@ export default function Login() {
     const newErrors = {};
 
     if (!recoveryData.phone) {
-      newErrors.phone = 'El telefono es requerido';
+      newErrors.phone = 'El teléfono es requerido';
     } else if (recoveryData.phone.length < 10) {
-      newErrors.phone = 'Ingresa un numero valido';
+      newErrors.phone = 'Ingresa un número válido';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -129,9 +129,9 @@ export default function Login() {
     const newErrors = {};
 
     if (!recoveryData.code) {
-      newErrors.code = 'El codigo es requerido';
+      newErrors.code = 'El código es requerido';
     } else if (recoveryData.code.length !== 6) {
-      newErrors.code = 'El codigo debe tener 6 digitos';
+      newErrors.code = 'El código debe tener 6 dígitos';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -156,15 +156,15 @@ export default function Login() {
     const newErrors = {};
 
     if (!recoveryData.newPassword) {
-      newErrors.newPassword = 'La contrasena es requerida';
+      newErrors.newPassword = 'La contraseña es requerida';
     } else if (recoveryData.newPassword.length < 6) {
-      newErrors.newPassword = 'Minimo 6 caracteres';
+      newErrors.newPassword = 'Mínimo 6 caracteres';
     }
 
     if (!recoveryData.confirmPassword) {
-      newErrors.confirmPassword = 'Confirma tu contrasena';
+      newErrors.confirmPassword = 'Confirma tu contraseña';
     } else if (recoveryData.newPassword !== recoveryData.confirmPassword) {
-      newErrors.confirmPassword = 'Las contrasenas no coinciden';
+      newErrors.confirmPassword = 'Las contraseñas no coinciden';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -224,7 +224,7 @@ export default function Login() {
               PetCast
             </h1>
             <p className="text-petcast-text">
-              Gestion veterinaria profesional
+              Gestión veterinaria profesional
             </p>
           </div>
 
@@ -246,7 +246,7 @@ export default function Login() {
             <TabsContent value="login">
               <form onSubmit={handleLoginSubmit} className="space-y-5">
                 <Input
-                  label="Correo electronico"
+                  label="Correo electrónico"
                   type="email"
                   name="email"
                   value={loginData.email}
@@ -257,7 +257,7 @@ export default function Login() {
                 />
 
                 <Input
-                  label="Contrasena"
+                  label="Contraseña"
                   type="password"
                   name="password"
                   value={loginData.password}
@@ -283,7 +283,7 @@ export default function Login() {
                     onClick={() => setActiveTab('recovery')}
                     className="text-sm text-petcast-heading font-medium hover:underline"
                   >
-                    Olvidaste tu contrasena?
+                    ¿Olvidaste tu contraseña?
                   </button>
                 </div>
 
@@ -294,7 +294,7 @@ export default function Login() {
                   size="lg"
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Iniciando sesion...' : 'Ingresar'}
+                  {isLoading ? 'Iniciando sesión...' : 'Ingresar'}
                 </Button>
               </form>
             </TabsContent>
@@ -307,10 +307,10 @@ export default function Login() {
                     <CheckCircle className="w-8 h-8 text-green-600" />
                   </div>
                   <h3 className="text-lg font-semibold text-petcast-heading mb-2">
-                    Contrasena actualizada
+                    Contraseña actualizada
                   </h3>
                   <p className="text-petcast-text-light text-sm">
-                    Ya puedes iniciar sesion con tu nueva contrasena
+                    Ya puedes iniciar sesión con tu nueva contraseña
                   </p>
                 </div>
               ) : (
@@ -323,17 +323,17 @@ export default function Login() {
                           <Phone className="w-6 h-6 text-petcast-heading" />
                         </div>
                         <p className="text-sm text-petcast-text-light">
-                          Ingresa tu numero de telefono para recibir un codigo de verificacion
+                          Ingresa tu número de teléfono para recibir un código de verificación
                         </p>
                       </div>
 
                       <Input
-                        label="Numero de telefono"
+                        label="Número de teléfono"
                         type="tel"
                         name="phone"
                         value={recoveryData.phone}
                         onChange={handleRecoveryChange}
-                        placeholder="10 digitos"
+                        placeholder="10 dígitos"
                         error={errors.phone}
                         required
                       />
@@ -346,7 +346,7 @@ export default function Login() {
                         disabled={solicitarCodigo.isPending}
                         loading={solicitarCodigo.isPending}
                       >
-                        {solicitarCodigo.isPending ? 'Enviando...' : 'Enviar codigo por WhatsApp'}
+                        {solicitarCodigo.isPending ? 'Enviando...' : 'Enviar código por WhatsApp'}
                       </Button>
                     </form>
                   )}
@@ -359,7 +359,7 @@ export default function Login() {
                           <KeyRound className="w-6 h-6 text-petcast-heading" />
                         </div>
                         <p className="text-sm text-petcast-text-light">
-                          Ingresa el codigo de 6 digitos que enviamos por WhatsApp a
+                          Ingresa el código de 6 dígitos que enviamos por WhatsApp a
                         </p>
                         <p className="text-sm font-medium text-petcast-heading">
                           {recoveryData.phone}
@@ -367,7 +367,7 @@ export default function Login() {
                       </div>
 
                       <Input
-                        label="Codigo de verificacion"
+                        label="Código de verificación"
                         type="text"
                         name="code"
                         value={recoveryData.code}
@@ -379,7 +379,7 @@ export default function Login() {
                       />
 
                       <p className="text-xs text-petcast-text-light text-center">
-                        El codigo expira en 10 minutos
+                        El código expira en 10 minutos
                       </p>
 
                       <Button
@@ -390,7 +390,7 @@ export default function Login() {
                         disabled={verificarCodigo.isPending}
                         loading={verificarCodigo.isPending}
                       >
-                        {verificarCodigo.isPending ? 'Verificando...' : 'Verificar codigo'}
+                        {verificarCodigo.isPending ? 'Verificando...' : 'Verificar código'}
                       </Button>
 
                       <button
@@ -398,7 +398,7 @@ export default function Login() {
                         onClick={() => setRecoveryStep(1)}
                         className="w-full text-sm text-petcast-text-light hover:text-petcast-heading"
                       >
-                        Cambiar numero
+                        Cambiar número
                       </button>
                     </form>
                   )}
@@ -408,28 +408,28 @@ export default function Login() {
                     <form onSubmit={handleResetPassword} className="space-y-5">
                       <div className="text-center mb-4">
                         <p className="text-sm text-petcast-text-light">
-                          Crea tu nueva contrasena
+                          Crea tu nueva contraseña
                         </p>
                       </div>
 
                       <Input
-                        label="Nueva contrasena"
+                        label="Nueva contraseña"
                         type="password"
                         name="newPassword"
                         value={recoveryData.newPassword}
                         onChange={handleRecoveryChange}
-                        placeholder="Minimo 6 caracteres"
+                        placeholder="Mínimo 6 caracteres"
                         error={errors.newPassword}
                         required
                       />
 
                       <Input
-                        label="Confirmar contrasena"
+                        label="Confirmar contraseña"
                         type="password"
                         name="confirmPassword"
                         value={recoveryData.confirmPassword}
                         onChange={handleRecoveryChange}
-                        placeholder="Repite tu contrasena"
+                        placeholder="Repite tu contraseña"
                         error={errors.confirmPassword}
                         required
                       />
@@ -442,7 +442,7 @@ export default function Login() {
                         disabled={resetContrasena.isPending}
                         loading={resetContrasena.isPending}
                       >
-                        {resetContrasena.isPending ? 'Guardando...' : 'Guardar contrasena'}
+                        {resetContrasena.isPending ? 'Guardando...' : 'Guardar contraseña'}
                       </Button>
                     </form>
                   )}

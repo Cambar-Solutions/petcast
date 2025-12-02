@@ -173,7 +173,7 @@ export default function Mascotas() {
 
       {/* Buscador */}
       <SearchBar
-        placeholder="Buscar mascota por nombre o dueno..."
+        placeholder="Buscar mascota por nombre o dueño..."
         value={searchTerm}
         onChange={setSearchTerm}
         debounceMs={300}
@@ -202,7 +202,7 @@ export default function Mascotas() {
             </div>
             <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
               <div className="min-w-0 flex-1">
-                <p className="text-xs text-gray-400">Dueno</p>
+                <p className="text-xs text-gray-400">Dueño</p>
                 <p className="text-sm font-medium text-gray-700 truncate">{mascota.dueno}</p>
               </div>
               <button

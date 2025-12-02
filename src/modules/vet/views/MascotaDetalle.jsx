@@ -244,7 +244,7 @@ export default function MascotaDetalle() {
                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                     <FileText className="w-4 h-4 text-blue-600" />
                   </div>
-                  <span className="text-sm font-semibold text-petcast-heading">Ultima revision medica</span>
+                  <span className="text-sm font-semibold text-petcast-heading">Última revisión médica</span>
                   {ultimaFicha && (
                     <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-700 ml-2">
                       {ultimaFicha.tipo || 'Consulta'}
@@ -276,7 +276,7 @@ export default function MascotaDetalle() {
 
                     {ultimaFicha.diagnostico && (
                       <div className="bg-gray-50 rounded-xl p-3">
-                        <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">Diagnostico</p>
+                        <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">Diagnóstico</p>
                         <p className="text-sm text-petcast-heading">{ultimaFicha.diagnostico}</p>
                       </div>
                     )}
@@ -318,7 +318,7 @@ export default function MascotaDetalle() {
                 ) : (
                   <div className="text-center py-4">
                     <FileText className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                    <p className="text-sm text-gray-500 mb-3">Sin registros medicos</p>
+                    <p className="text-sm text-gray-500 mb-3">Sin registros médicos</p>
                     <button
                       onClick={handleOpenNewFicha}
                       className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors"
@@ -356,7 +356,7 @@ export default function MascotaDetalle() {
 
                     {propietario.telefono && (
                       <div className="bg-gray-50 rounded-xl p-3">
-                        <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-1">Telefono</p>
+                        <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-1">Teléfono</p>
                         <p className="text-sm text-petcast-heading">{propietario.telefono}</p>
                       </div>
                     )}
@@ -368,7 +368,7 @@ export default function MascotaDetalle() {
 
                     {propietario.direccion && (
                       <div className="bg-gray-50 rounded-xl p-3">
-                        <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-1">Direccion</p>
+                        <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-1">Dirección</p>
                         <p className="text-sm text-petcast-heading">{propietario.direccion}</p>
                       </div>
                     )}
@@ -436,7 +436,7 @@ export default function MascotaDetalle() {
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>{copiado ? 'Copiado!' : 'Copiar codigo'}</p>
+                        <p>{copiado ? '¡Copiado!' : 'Copiar código'}</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -516,7 +516,7 @@ export default function MascotaDetalle() {
                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                     <FileText className="w-4 h-4 text-blue-600" />
                   </div>
-                  Ultima revision medica
+                  Última revisión médica
                 </h3>
                 <div className="flex items-center gap-2">
                   {fichasOrdenadas.length > 1 && (
@@ -572,7 +572,7 @@ export default function MascotaDetalle() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {ultimaFicha.diagnostico && (
                       <div className="bg-gray-50 rounded-xl p-4">
-                        <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2">Diagnostico</p>
+                        <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2">Diagnóstico</p>
                         <p className="text-sm text-petcast-heading">{ultimaFicha.diagnostico}</p>
                       </div>
                     )}
@@ -597,8 +597,8 @@ export default function MascotaDetalle() {
                   <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
                     <FileText className="w-8 h-8 text-gray-400" />
                   </div>
-                  <p className="text-sm font-medium text-gray-500">Sin registros medicos</p>
-                  <p className="text-xs text-gray-400 mt-1 mb-4">Aun no hay revisiones registradas</p>
+                  <p className="text-sm font-medium text-gray-500">Sin registros médicos</p>
+                  <p className="text-xs text-gray-400 mt-1 mb-4">Aún no hay revisiones registradas</p>
                   <button
                     onClick={handleOpenNewFicha}
                     className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors"
@@ -628,7 +628,7 @@ export default function MascotaDetalle() {
 
                   {propietario.telefono && (
                     <div className="bg-gray-50 rounded-xl p-4">
-                      <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-2">Telefono</p>
+                      <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-2">Teléfono</p>
                       <p className="text-sm text-petcast-heading">{propietario.telefono}</p>
                     </div>
                   )}
@@ -640,7 +640,7 @@ export default function MascotaDetalle() {
 
                   {propietario.direccion && (
                     <div className="bg-gray-50 rounded-xl p-4">
-                      <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-2">Direccion</p>
+                      <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-2">Dirección</p>
                       <p className="text-sm text-petcast-heading">{propietario.direccion}</p>
                     </div>
                   )}
@@ -785,7 +785,7 @@ export default function MascotaDetalle() {
             <DrawerHeader>
               <DrawerTitle className="flex items-center gap-2">
                 <History className="w-5 h-5 text-blue-600" />
-                Historial Medico
+                Historial Médico
               </DrawerTitle>
               <p className="text-sm text-petcast-text-light">{fichasOrdenadas.length} registros</p>
             </DrawerHeader>
@@ -839,7 +839,7 @@ export default function MascotaDetalle() {
               <History className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-petcast-heading">Historial Medico</h3>
+              <h3 className="text-lg font-semibold text-petcast-heading">Historial Médico</h3>
               <p className="text-sm text-petcast-text-light">{fichasOrdenadas.length} registros de {mascota?.nombre}</p>
             </div>
           </div>

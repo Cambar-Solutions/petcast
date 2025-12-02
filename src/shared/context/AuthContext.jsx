@@ -117,7 +117,7 @@ export const AuthProvider = ({ children }) => {
       case 'VET':
         return [
           { id: 'mascotas', label: 'Mascotas', path: '/vet/mascotas', icon: 'PawPrint' },
-          { id: 'duenos', label: 'Duenos', path: '/vet/duenos', icon: 'Users' },
+          { id: 'duenos', label: 'Dueños', path: '/vet/duenos', icon: 'Users' },
           { id: 'perfil', label: 'Perfil', path: '/vet', icon: 'Home' },
           { id: 'citas', label: 'Citas', path: '/vet/citas', icon: 'Calendar' },
           { id: 'recordatorios', label: 'WhatsApp', path: '/vet/recordatorios', icon: 'MessageCircle' },

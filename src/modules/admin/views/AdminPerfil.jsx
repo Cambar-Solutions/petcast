@@ -12,7 +12,7 @@ export default function AdminPerfil() {
       <div>
         <Title variant="page-title">Mi Perfil</Title>
         <Description variant="section-description" mobileText="Administra tu información">
-          Administra tu informacion personal
+          Administra tu información personal
         </Description>
       </div>
 
@@ -53,7 +53,7 @@ export default function AdminPerfil() {
             <div className="space-y-2">
               <Label htmlFor="email" className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-gray-400" />
-                Correo electronico
+                Correo electrónico
               </Label>
               <Input
                 id="email"
@@ -67,7 +67,7 @@ export default function AdminPerfil() {
             <div className="space-y-2">
               <Label htmlFor="phone" className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-gray-400" />
-                Telefono
+                Teléfono
               </Label>
               <Input
                 id="phone"
@@ -80,12 +80,12 @@ export default function AdminPerfil() {
             <div className="space-y-2">
               <Label htmlFor="clinic" className="flex items-center gap-2">
                 <Building className="w-4 h-4 text-gray-400" />
-                Clinica
+                Clínica
               </Label>
               <Input
                 id="clinic"
                 type="text"
-                placeholder="Nombre de la clinica"
+                placeholder="Nombre de la clínica"
                 className="rounded-xl"
               />
             </div>

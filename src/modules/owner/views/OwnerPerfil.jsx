@@ -55,7 +55,7 @@ export default function OwnerPerfil() {
       <div>
         <Title variant="page-title">Mi Perfil</Title>
         <Description variant="section-description" mobileText="Tu información personal">
-          Administra tu informacion personal
+          Administra tu información personal
         </Description>
       </div>
 
@@ -71,7 +71,7 @@ export default function OwnerPerfil() {
             <h2 className="text-xl font-semibold text-gray-900">{user?.name || 'Usuario'}</h2>
             <p className="text-gray-500">{user?.email}</p>
             <span className="inline-block mt-1 px-2 py-1 text-xs font-medium bg-purple-100 text-purple-700 rounded-full">
-              Dueno de Mascotas
+              Dueño de Mascotas
             </span>
           </div>
         </div>
@@ -96,7 +96,7 @@ export default function OwnerPerfil() {
             <div className="space-y-2">
               <Label htmlFor="email" className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-gray-400" />
-                Correo electronico
+                Correo electrónico
               </Label>
               <Input
                 id="email"
@@ -110,7 +110,7 @@ export default function OwnerPerfil() {
             <div className="space-y-2">
               <Label htmlFor="phone" className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-gray-400" />
-                Telefono
+                Teléfono
               </Label>
               <Input
                 id="phone"
@@ -123,12 +123,12 @@ export default function OwnerPerfil() {
             <div className="space-y-2">
               <Label htmlFor="address" className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-gray-400" />
-                Direccion
+                Dirección
               </Label>
               <Input
                 id="address"
                 type="text"
-                placeholder="Tu direccion"
+                placeholder="Tu dirección"
                 className="rounded-xl"
               />
             </div>
@@ -168,7 +168,7 @@ export default function OwnerPerfil() {
                   type={showPasswords.nueva ? 'text' : 'password'}
                   value={passwords.nueva}
                   onChange={handlePasswordChange}
-                  placeholder="Minimo 6 caracteres"
+                  placeholder="Mínimo 6 caracteres"
                   className="rounded-xl pr-10"
                   minLength={6}
                 />

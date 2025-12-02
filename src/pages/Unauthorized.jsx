@@ -23,7 +23,7 @@ export default function Unauthorized() {
         </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Acceso Denegado</h1>
         <p className="text-gray-600 mb-6 max-w-md">
-          No tienes permisos para acceder a esta pagina. Si crees que esto es un error, contacta al administrador.
+          No tienes permisos para acceder a esta página. Si crees que esto es un error, contacta al administrador.
         </p>
         <Button variant="primary" onClick={handleGoBack}>
           Volver al Inicio

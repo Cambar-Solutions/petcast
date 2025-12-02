@@ -50,7 +50,7 @@ export default function Recordatorios() {
     switch (tipo) {
       case 'CITA_PROXIMA': return 'Cita';
       case 'VACUNACION': return 'Vacuna';
-      case 'REVISION': return 'Revision';
+      case 'REVISION': return 'Revisión';
       default: return tipo;
     }
   };
@@ -70,8 +70,8 @@ export default function Recordatorios() {
       <div className="flex flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <Title variant="page-title">Recordatorios</Title>
-          <Description variant="section-description" mobileText="Envia recordatorios">
-            Conecta WhatsApp y envia recordatorios a tus clientes
+          <Description variant="section-description" mobileText="Envía recordatorios">
+            Conecta WhatsApp y envía recordatorios a tus clientes
           </Description>
         </div>
       </div>
@@ -95,7 +95,7 @@ export default function Recordatorios() {
               <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
                 <MessageCircle className="w-5 h-5 text-blue-600" />
               </div>
-              <h3 className="font-semibold text-blue-900 text-lg">Como funciona?</h3>
+              <h3 className="font-semibold text-blue-900 text-lg">¿Cómo funciona?</h3>
             </div>
 
             <div className="flex-1 space-y-4">
@@ -105,7 +105,7 @@ export default function Recordatorios() {
                 </div>
                 <div>
                   <p className="font-medium text-gray-800">Escanea el QR</p>
-                  <p className="text-sm text-gray-600">Abre WhatsApp en tu celular y escanea el codigo</p>
+                  <p className="text-sm text-gray-600">Abre WhatsApp en tu celular y escanea el código</p>
                 </div>
               </div>
 
@@ -115,7 +115,7 @@ export default function Recordatorios() {
                 </div>
                 <div>
                   <p className="font-medium text-gray-800">Conecta tu cuenta</p>
-                  <p className="text-sm text-gray-600">Una vez conectado, podras enviar recordatorios</p>
+                  <p className="text-sm text-gray-600">Una vez conectado, podrás enviar recordatorios</p>
                 </div>
               </div>
 
@@ -124,8 +124,8 @@ export default function Recordatorios() {
                   3
                 </div>
                 <div>
-                  <p className="font-medium text-gray-800">Envia mensajes</p>
-                  <p className="text-sm text-gray-600">Los recordatorios se enviaran desde tu numero</p>
+                  <p className="font-medium text-gray-800">Envía mensajes</p>
+                  <p className="text-sm text-gray-600">Los recordatorios se enviarán desde tu número</p>
                 </div>
               </div>
             </div>
@@ -145,7 +145,7 @@ export default function Recordatorios() {
                 <Syringe className="w-7 h-7 text-green-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-900 text-lg">Vacunacion</h3>
+                <h3 className="font-semibold text-gray-900 text-lg">Vacunación</h3>
                 <p className="text-sm text-gray-600 mt-0.5">
                   Recordatorio de vacunas
                 </p>

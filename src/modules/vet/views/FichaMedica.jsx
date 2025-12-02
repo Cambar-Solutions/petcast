@@ -12,7 +12,7 @@ export default function FichaMedica() {
     nombre: 'Max',
     especie: 'Perro',
     raza: 'Labrador',
-    edad: '3 anos',
+    edad: '3 años',
     peso: '28 kg',
     color: 'Dorado',
     dueno: {
@@ -21,9 +21,9 @@ export default function FichaMedica() {
       email: 'maria@email.com',
     },
     historial: [
-      { fecha: '2024-01-10', tipo: 'Vacunacion', descripcion: 'Vacuna antirabica' },
-      { fecha: '2023-12-15', tipo: 'Consulta', descripcion: 'Revision general - Todo bien' },
-      { fecha: '2023-10-20', tipo: 'Desparasitacion', descripcion: 'Desparasitante oral' },
+      { fecha: '2024-01-10', tipo: 'Vacunación', descripcion: 'Vacuna antirrábica' },
+      { fecha: '2023-12-15', tipo: 'Consulta', descripcion: 'Revisión general - Todo bien' },
+      { fecha: '2023-10-20', tipo: 'Desparasitación', descripcion: 'Desparasitante oral' },
     ],
   };
 
@@ -38,8 +38,8 @@ export default function FichaMedica() {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Ficha Medica</h1>
-          <p className="text-gray-600">Codigo: {codigo || 'N/A'}</p>
+          <h1 className="text-2xl font-bold text-gray-900">Ficha Médica</h1>
+          <p className="text-gray-600">Código: {codigo || 'N/A'}</p>
         </div>
       </div>
 
@@ -66,9 +66,9 @@ export default function FichaMedica() {
           </div>
         </div>
 
-        {/* Dueno */}
+        {/* Dueño */}
         <div className="p-4 bg-gray-50 rounded-xl">
-          <p className="text-xs text-gray-400 mb-1">Dueno</p>
+          <p className="text-xs text-gray-400 mb-1">Dueño</p>
           <p className="font-medium text-gray-900">{mascota.dueno.nombre}</p>
           <p className="text-sm text-gray-500">{mascota.dueno.telefono} | {mascota.dueno.email}</p>
         </div>
@@ -77,7 +77,7 @@ export default function FichaMedica() {
       {/* Historial */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Historial Medico</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Historial Médico</h3>
           <Button variant="outline" size="sm" className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
             Agregar Nota
@@ -87,10 +87,10 @@ export default function FichaMedica() {
           {mascota.historial.map((item, i) => (
             <div key={i} className="flex gap-4 p-4 bg-gray-50 rounded-xl">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                item.tipo === 'Vacunacion' ? 'bg-green-100' :
+                item.tipo === 'Vacunación' ? 'bg-green-100' :
                 item.tipo === 'Consulta' ? 'bg-blue-100' : 'bg-purple-100'
               }`}>
-                {item.tipo === 'Vacunacion' ? (
+                {item.tipo === 'Vacunación' ? (
                   <Syringe className="w-5 h-5 text-green-600" />
                 ) : item.tipo === 'Consulta' ? (
                   <PawPrint className="w-5 h-5 text-blue-600" />

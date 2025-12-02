@@ -102,7 +102,7 @@ export default function DuenoForm({
       <div className="space-y-2">
         <Label htmlFor="email" className="flex items-center gap-2">
           <Mail className="w-4 h-4 text-gray-400" />
-          Correo electronico
+          Correo electrónico
         </Label>
         <Input
           id="email"
@@ -119,7 +119,7 @@ export default function DuenoForm({
       <div className="space-y-2">
         <Label htmlFor="telefono" className="flex items-center gap-2">
           <Phone className="w-4 h-4 text-gray-400" />
-          Telefono
+          Teléfono
         </Label>
         <Input
           id="telefono"
@@ -136,7 +136,7 @@ export default function DuenoForm({
       <div className="space-y-2">
         <Label htmlFor="direccion" className="flex items-center gap-2">
           <MapPin className="w-4 h-4 text-gray-400" />
-          Direccion
+          Dirección
         </Label>
         <Input
           id="direccion"
@@ -155,7 +155,7 @@ export default function DuenoForm({
             Cancelar
           </Button>
           <Button type="submit" variant="primary" disabled={isLoading}>
-            {isLoading ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Crear Dueno'}
+            {isLoading ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Crear Dueño'}
           </Button>
         </div>
       )}
@@ -168,7 +168,7 @@ export default function DuenoForm({
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>
-              {isEditing ? 'Editar Dueno' : 'Nuevo Dueno'}
+              {isEditing ? 'Editar Dueño' : 'Nuevo Dueño'}
             </DrawerTitle>
           </DrawerHeader>
           <div className="flex-1 overflow-y-auto px-4 pb-4">
@@ -185,7 +185,7 @@ export default function DuenoForm({
               className="w-full"
               disabled={isLoading}
             >
-              {isLoading ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Crear Dueno'}
+              {isLoading ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Crear Dueño'}
             </Button>
           </DrawerFooter>
         </DrawerContent>
@@ -196,7 +196,7 @@ export default function DuenoForm({
   return (
     <Modal open={isOpen} onClose={onClose} size="md">
       <h3 className="text-xl font-semibold text-gray-900 mb-4">
-        {isEditing ? 'Editar Dueno' : 'Nuevo Dueno'}
+        {isEditing ? 'Editar Dueño' : 'Nuevo Dueño'}
       </h3>
       {formContent}
     </Modal>
