@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, ChevronRight, Pencil, Lock, LogOut } from 'lucide-react';
+import { User, ChevronRight, Pencil, Lock, LogOut, Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
-import { Button } from '@/shared/components/ui/button';
+import Button from '@/shared/components/Button';
+import { useUpdateUser } from '@/shared/hooks';
 
 export default function ProfileCardMobile({ user, onLogout }) {
+  const updateUser = useUpdateUser();
   const [view, setView] = useState('profile');
 
   const [formData, setFormData] = useState({ name: '', email: '' });
   const [passwordData, setPasswordData] = useState({ newPassword: '', confirmPassword: '' });
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [showPasswords, setShowPasswords] = useState({
+    newPassword: false,
+    confirmPassword: false,
+  });
 
   // Limpiar forms al cambiar vista
   useEffect(() => {
@@ -74,18 +80,27 @@ export default function ProfileCardMobile({ user, onLogout }) {
     setTouched({});
   };
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     const newErrors = {
       name: validateProfileField('name', formData.name),
       email: validateProfileField('email', formData.email),
     };
     setErrors(newErrors);
     if (newErrors.name || newErrors.email) return;
-    console.log('Guardando perfil:', formData);
-    setView('profile');
+
+    const dataToSave = { id: user?.id };
+    if (formData.name.trim()) dataToSave.nombre = formData.name.trim();
+    if (formData.email.trim()) dataToSave.correo = formData.email.trim();
+
+    try {
+      await updateUser.mutateAsync(dataToSave);
+      setView('profile');
+    } catch (err) {
+      // El hook ya muestra el toast de error
+    }
   };
 
-  const handleSavePassword = () => {
+  const handleSavePassword = async () => {
     const newErrors = {
       newPassword: validatePasswordField('newPassword', passwordData.newPassword),
       confirmPassword: validatePasswordField('confirmPassword', passwordData.confirmPassword),
@@ -93,8 +108,17 @@ export default function ProfileCardMobile({ user, onLogout }) {
     setErrors(newErrors);
     setTouched({ newPassword: true, confirmPassword: true });
     if (newErrors.newPassword || newErrors.confirmPassword) return;
-    console.log('Guardando contraseña');
-    setView('profile');
+
+    try {
+      await updateUser.mutateAsync({
+        id: user?.id,
+        contrasena: passwordData.newPassword,
+      });
+      setPasswordData({ newPassword: '', confirmPassword: '' });
+      setView('profile');
+    } catch (err) {
+      // El hook ya muestra el toast de error
+    }
   };
 
   const hasProfileChanges = formData.name.trim() !== '' || formData.email.trim() !== '';
@@ -229,10 +253,12 @@ export default function ProfileCardMobile({ user, onLogout }) {
 
               <Button
                 type="submit"
+                variant="primary"
                 disabled={!hasProfileChanges}
-                className="w-full h-12 rounded-xl bg-gray-800 hover:bg-gray-900 disabled:bg-gray-300 mt-6"
+                loading={updateUser.isPending}
+                className="w-full mt-6"
               >
-                Guardar cambios
+                {updateUser.isPending ? 'Guardando...' : 'Guardar cambios'}
               </Button>
             </form>
           </motion.div>
@@ -263,15 +289,24 @@ export default function ProfileCardMobile({ user, onLogout }) {
             <form onSubmit={(e) => { e.preventDefault(); handleSavePassword(); }} className="space-y-5 mt-4">
               <div className="space-y-2">
                 <Label className="text-xs text-gray-500">Nueva contraseña</Label>
-                <Input
-                  name="newPassword"
-                  type="password"
-                  value={passwordData.newPassword}
-                  onChange={handlePasswordChange}
-                  onBlur={(e) => handleBlur(e, 'password')}
-                  placeholder="Mínimo 6 caracteres"
-                  className={`h-12 rounded-xl bg-white ${errors.newPassword && touched.newPassword ? 'border-red-400' : ''}`}
-                />
+                <div className="relative">
+                  <Input
+                    name="newPassword"
+                    type={showPasswords.newPassword ? 'text' : 'password'}
+                    value={passwordData.newPassword}
+                    onChange={handlePasswordChange}
+                    onBlur={(e) => handleBlur(e, 'password')}
+                    placeholder="Mínimo 6 caracteres"
+                    className={`h-12 rounded-xl bg-white pr-10 ${errors.newPassword && touched.newPassword ? 'border-red-400' : ''}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswords(p => ({ ...p, newPassword: !p.newPassword }))}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-petcast-orange transition-colors"
+                  >
+                    {showPasswords.newPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
                 {errors.newPassword && touched.newPassword && (
                   <p className="text-xs text-red-500">{errors.newPassword}</p>
                 )}
@@ -279,15 +314,24 @@ export default function ProfileCardMobile({ user, onLogout }) {
 
               <div className="space-y-2">
                 <Label className="text-xs text-gray-500">Confirmar contraseña</Label>
-                <Input
-                  name="confirmPassword"
-                  type="password"
-                  value={passwordData.confirmPassword}
-                  onChange={handlePasswordChange}
-                  onBlur={(e) => handleBlur(e, 'password')}
-                  placeholder="Repite tu contraseña"
-                  className={`h-12 rounded-xl bg-white ${errors.confirmPassword && touched.confirmPassword ? 'border-red-400' : ''}`}
-                />
+                <div className="relative">
+                  <Input
+                    name="confirmPassword"
+                    type={showPasswords.confirmPassword ? 'text' : 'password'}
+                    value={passwordData.confirmPassword}
+                    onChange={handlePasswordChange}
+                    onBlur={(e) => handleBlur(e, 'password')}
+                    placeholder="Repite tu contraseña"
+                    className={`h-12 rounded-xl bg-white pr-10 ${errors.confirmPassword && touched.confirmPassword ? 'border-red-400' : ''}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswords(p => ({ ...p, confirmPassword: !p.confirmPassword }))}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-petcast-orange transition-colors"
+                  >
+                    {showPasswords.confirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
                 {errors.confirmPassword && touched.confirmPassword && (
                   <p className="text-xs text-red-500">{errors.confirmPassword}</p>
                 )}
@@ -295,10 +339,12 @@ export default function ProfileCardMobile({ user, onLogout }) {
 
               <Button
                 type="submit"
+                variant="primary"
                 disabled={!hasPasswordChanges}
-                className="w-full h-12 rounded-xl bg-gray-800 hover:bg-gray-900 disabled:bg-gray-300 mt-6"
+                loading={updateUser.isPending}
+                className="w-full mt-6"
               >
-                Guardar contraseña
+                {updateUser.isPending ? 'Guardando...' : 'Guardar contraseña'}
               </Button>
             </form>
           </motion.div>

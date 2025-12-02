@@ -1,6 +1,10 @@
+import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
+
 /**
  * Componente Input reutilizable
  * Soporta diferentes tipos y validaciones
+ * Para type="password" incluye botón para mostrar/ocultar
  */
 
 export default function Input({
@@ -17,6 +21,10 @@ export default function Input({
   className = '',
   ...props
 }) {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = type === 'password';
+  const inputType = isPassword ? (showPassword ? 'text' : 'password') : type;
+
   return (
     <div className={`w-full ${className}`}>
       {label && (
@@ -39,7 +47,7 @@ export default function Input({
         <input
           id={name}
           name={name}
-          type={type}
+          type={inputType}
           value={value}
           onChange={onChange}
           placeholder={placeholder}
@@ -48,6 +56,7 @@ export default function Input({
           className={`
             w-full px-4 py-2.5 rounded-lg border
             ${icon ? 'pl-10' : ''}
+            ${isPassword ? 'pr-10' : ''}
             ${error
               ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
               : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
@@ -58,6 +67,16 @@ export default function Input({
           `}
           {...props}
         />
+
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        )}
       </div>
 
       {error && (

@@ -55,9 +55,11 @@ export default function Duenos() {
       if (selectedDueno) {
         await updateUser.mutateAsync({ id: selectedDueno.id, ...userData });
       } else {
+        // Generar contraseña: Nombre + Año actual (ej: Jonathan2025)
+        const contrasenaGenerada = formData.nombre + new Date().getFullYear();
         await createUser.mutateAsync({
           ...userData,
-          contrasena: '123456',
+          contrasena: contrasenaGenerada,
           rol: 'DUENO',
           estado: 'ACTIVO',
         });
