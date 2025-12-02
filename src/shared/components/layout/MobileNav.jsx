@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Home, Users, BarChart3, User, PawPrint, Calendar } from 'lucide-react';
+import { Home, Users, BarChart3, User, PawPrint, Calendar, MessageCircle, Bell } from 'lucide-react';
 
 const iconMap = {
   Home,
@@ -8,12 +8,14 @@ const iconMap = {
   User,
   PawPrint,
   Calendar,
+  MessageCircle,
+  Bell,
 };
 
 const MobileNav = ({ tabs, activeTab }) => {
   const navigate = useNavigate();
 
-  // Filtrar el tab de perfil (está en el navbar superior en mobile)
+  // Filtrar el tab de perfil (esta en el navbar superior en mobile)
   const filteredTabs = tabs.filter(tab => tab.id !== 'perfil');
 
   return (
@@ -39,7 +41,7 @@ const MobileNav = ({ tabs, activeTab }) => {
                   <span className={`text-[10px] font-medium ${isActive ? 'font-semibold text-petcast-orange' : ''}`}>
                     {tab.label}
                   </span>
-                  {/* Línea activa con gradiente animado */}
+                  {/* Linea activa con gradiente animado */}
                   {isActive && (
                     <span
                       className="absolute bottom-1.5 left-1/2 -translate-x-1/2 h-0.5 w-6 rounded-full"

@@ -120,7 +120,7 @@ export const AuthProvider = ({ children }) => {
           { id: 'duenos', label: 'Duenos', path: '/vet/duenos', icon: 'Users' },
           { id: 'perfil', label: 'Perfil', path: '/vet', icon: 'Home' },
           { id: 'citas', label: 'Citas', path: '/vet/citas', icon: 'Calendar' },
-          { id: 'recordatorios', label: 'WhatsApp', path: '/vet/recordatorios', icon: 'Bell' },
+          { id: 'recordatorios', label: 'WhatsApp', path: '/vet/recordatorios', icon: 'MessageCircle' },
         ];
       case 'OWNER':
         return [
