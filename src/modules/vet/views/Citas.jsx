@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Plus, Calendar, Clock, PawPrint, Loader2 } from 'lucide-react';
-import { Button, Title, Description, SearchBar } from '@/shared/components';
+import { Plus, Calendar, Clock, PawPrint, Loader2, Edit } from 'lucide-react';
+import { Button, Title, Description, SearchBar, FilterTabs } from '@/shared/components';
 import { CitaForm } from '../components';
 import { useAppointments, useCreateAppointment, useUpdateAppointment, usePets, useDuenos } from '@/shared/hooks';
 
@@ -27,6 +27,11 @@ export default function Citas() {
 
   const handleOpenCreate = () => {
     setSelectedCita(null);
+    setIsFormOpen(true);
+  };
+
+  const handleOpenEdit = (cita) => {
+    setSelectedCita(cita);
     setIsFormOpen(true);
   };
 
@@ -105,7 +110,12 @@ export default function Citas() {
     }
   };
 
-  const filtros = ['Todas', 'Hoy', 'Pendientes', 'Confirmadas'];
+  const filtros = [
+    { id: 'Todas', label: 'Todas' },
+    { id: 'Pendientes', label: 'Pendientes' },
+    { id: 'Confirmadas', label: 'Confirmadas' },
+    { id: 'Canceladas', label: 'Canceladas' },
+  ];
 
   // Mapear citas del backend al frontend
   const mappedCitas = citas.map((cita) => {
@@ -131,9 +141,9 @@ export default function Citas() {
       cita.tipo.toLowerCase().includes(searchTerm.toLowerCase());
 
     if (filtroActivo === 'Todas') return matchSearch;
-    if (filtroActivo === 'Hoy') return matchSearch && cita.fecha === new Date().toISOString().split('T')[0];
     if (filtroActivo === 'Pendientes') return matchSearch && cita.status === 'Pendiente';
     if (filtroActivo === 'Confirmadas') return matchSearch && cita.status === 'Confirmada';
+    if (filtroActivo === 'Canceladas') return matchSearch && cita.status === 'Cancelada';
     return matchSearch;
   });
 
@@ -197,51 +207,48 @@ export default function Citas() {
       />
 
       {/* Filtros rapidos */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        {filtros.map((filtro) => (
-          <button
-            key={filtro}
-            onClick={() => setFiltroActivo(filtro)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
-              filtro === filtroActivo
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            {filtro}
-          </button>
-        ))}
-      </div>
+      <FilterTabs
+        filters={filtros}
+        selectedFilter={filtroActivo}
+        onFilterChange={setFiltroActivo}
+      />
 
       {/* Lista de citas */}
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {filteredCitas.map((cita) => (
-          <div key={cita.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
-                <PawPrint className="w-7 h-7 text-blue-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-semibold text-gray-900">{cita.mascota}</h3>
-                  <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${getStatusColor(cita.status)}`}>
-                    {cita.status}
-                  </span>
+          <div key={cita.id} className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+            <div className="flex items-start justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <PawPrint className="w-5 h-5 text-blue-600" />
                 </div>
-                <p className="text-sm text-gray-500">{cita.dueno}</p>
-                <p className="text-sm text-gray-400">{cita.tipo}</p>
-              </div>
-              <div className="text-right">
-                <div className="flex items-center gap-1 text-gray-900 font-medium">
-                  <Calendar className="w-4 h-4 text-gray-400" />
-                  {cita.fecha}
-                </div>
-                <div className="flex items-center gap-1 text-gray-500 text-sm">
-                  <Clock className="w-4 h-4 text-gray-400" />
-                  {cita.hora}
+                <div>
+                  <h3 className="font-semibold text-gray-900 text-sm">{cita.mascota}</h3>
+                  <p className="text-xs text-gray-500">{cita.dueno}</p>
                 </div>
               </div>
+              <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${getStatusColor(cita.status)}`}>
+                {cita.status}
+              </span>
             </div>
+            <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+              <span className="flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                {cita.fecha}
+              </span>
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {cita.hora}
+              </span>
+              <span className="text-gray-400 truncate max-w-[80px]">{cita.tipo}</span>
+            </div>
+            <button
+              onClick={() => handleOpenEdit(cita)}
+              className="w-full flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer"
+            >
+              <Edit className="w-3 h-3" />
+              Editar cita
+            </button>
           </div>
         ))}
       </div>

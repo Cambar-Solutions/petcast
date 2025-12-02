@@ -158,73 +158,123 @@ export default function Duenos() {
         debounceMs={300}
       />
 
-      {/* Lista de duenos */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="divide-y divide-gray-100">
-          {filteredDuenos.map((dueno) => (
-            <div key={dueno.id} className="p-4 hover:bg-gray-50">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-lg font-medium text-gray-700">
+      {/* Cards en móvil */}
+      <div className="grid grid-cols-1 gap-3 md:hidden">
+        {filteredDuenos.map((dueno) => (
+          <div key={dueno.id} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-green-600 font-semibold text-sm">
                     {dueno.name.charAt(0)}
                   </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-gray-900">{dueno.name}</h3>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <Mail className="w-3 h-3" />
-                      {dueno.email}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Phone className="w-3 h-3" />
-                      {dueno.telefono}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-gray-900 text-sm truncate">{dueno.name}</p>
+                    <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-700 flex-shrink-0">
+                      {dueno.mascotas} 🐾
                     </span>
                   </div>
-                </div>
-                <div className="text-center px-3">
-                  <p className="text-lg font-semibold text-gray-900">{dueno.mascotas}</p>
-                  <p className="text-xs text-gray-500">mascotas</p>
-                </div>
-                <div className="flex gap-1">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => handleOpenEdit(dueno)}
-                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg cursor-pointer"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Editar</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => handleOpenDeleteConfirm(dueno)}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg cursor-pointer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Eliminar</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <p className="text-xs text-gray-500 truncate">{dueno.email}</p>
                 </div>
               </div>
+              <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+                <button
+                  onClick={() => handleOpenEdit(dueno)}
+                  className="p-2 text-blue-500 bg-blue-50 hover:bg-blue-100 hover:scale-110 rounded-lg cursor-pointer transition-all duration-200"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleOpenDeleteConfirm(dueno)}
+                  className="p-2 text-red-500 bg-red-50 hover:bg-red-100 hover:scale-110 rounded-lg cursor-pointer transition-all duration-200"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
+        {filteredDuenos.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            No se encontraron dueños
+          </div>
+        )}
       </div>
 
-      {filteredDuenos.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          No se encontraron duenos
-        </div>
-      )}
+      {/* Tabla en desktop */}
+      <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-gray-50 border-b border-gray-100">
+            <tr>
+              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Nombre</th>
+              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Email</th>
+              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500 hidden lg:table-cell">Teléfono</th>
+              <th className="text-center px-6 py-3 text-sm font-medium text-gray-500">Mascotas</th>
+              <th className="text-right px-6 py-3 text-sm font-medium text-gray-500">Acciones</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {filteredDuenos.map((dueno) => (
+              <tr key={dueno.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 bg-gradient-to-br from-green-100 to-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-green-600 font-semibold text-sm">
+                        {dueno.name.charAt(0)}
+                      </span>
+                    </div>
+                    <p className="font-medium text-gray-900">{dueno.name}</p>
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-gray-600">{dueno.email}</td>
+                <td className="px-6 py-4 text-gray-600 hidden lg:table-cell">{dueno.telefono}</td>
+                <td className="px-6 py-4 text-center">
+                  <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">
+                    {dueno.mascotas}
+                  </span>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center justify-end gap-2">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => handleOpenEdit(dueno)}
+                          className="p-2 text-blue-500 bg-blue-50 hover:bg-blue-100 hover:scale-110 rounded-lg cursor-pointer transition-all duration-200"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Editar</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => handleOpenDeleteConfirm(dueno)}
+                          className="p-2 text-red-500 bg-red-50 hover:bg-red-100 hover:scale-110 rounded-lg cursor-pointer transition-all duration-200"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Eliminar</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {filteredDuenos.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            No se encontraron dueños
+          </div>
+        )}
+      </div>
 
       {/* Form Modal/Drawer */}
       <DuenoForm

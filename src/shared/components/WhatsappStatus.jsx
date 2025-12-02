@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { MessageCircle, Wifi, WifiOff, QrCode, RefreshCw, LogOut } from 'lucide-react';
+import { MessageCircle, Wifi, WifiOff, QrCode, LogOut } from 'lucide-react';
 import { useWhatsappStatus, useWhatsappQR, useForceWhatsappLogout } from '@/shared/hooks';
 import Card from './Card';
 import Button from './Button';
@@ -9,9 +8,8 @@ import Button from './Button';
  * y el código QR para conectar
  */
 export default function WhatsappStatus() {
-  const [showQR, setShowQR] = useState(false);
-  const { data: status, isLoading, refetch } = useWhatsappStatus();
-  const { data: qrData } = useWhatsappQR({ enabled: showQR });
+  const { data: status } = useWhatsappStatus();
+  const { data: qrData } = useWhatsappQR({ enabled: status?.status === 'qr_required' });
   const forceLogout = useForceWhatsappLogout();
 
   const getStatusColor = () => {
@@ -80,52 +78,35 @@ export default function WhatsappStatus() {
       )}
 
       {status?.status === 'qr_required' && (
-        <div className="mb-4">
-          <p className="text-sm text-gray-600 mb-2">
-            Escanea el código QR con WhatsApp para conectar.
+        <div className="flex flex-col items-center">
+          <p className="text-sm text-gray-600 mb-3 text-center">
+            Escanea el codigo QR con WhatsApp para conectar.
           </p>
-          {!showQR ? (
-            <Button onClick={() => setShowQR(true)} variant="outline" size="sm">
-              <QrCode className="w-4 h-4 mr-2" />
-              Mostrar QR
-            </Button>
-          ) : qrData?.qrCode ? (
-            <div className="bg-white p-4 rounded-lg border inline-block">
+          {qrData?.qrCode ? (
+            <div className="bg-white p-4 rounded-xl border shadow-sm">
               <img
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData.qrCode)}`}
-                alt="Código QR de WhatsApp"
+                alt="Codigo QR de WhatsApp"
                 className="w-48 h-48"
               />
             </div>
           ) : (
-            <p className="text-sm text-gray-500">Generando código QR...</p>
+            <p className="text-sm text-gray-500">Generando codigo QR...</p>
           )}
         </div>
       )}
 
-      <div className="flex gap-2 flex-wrap">
+      {status?.status === 'connected' && (
         <Button
-          onClick={() => refetch()}
-          variant="outline"
+          onClick={handleForceLogout}
+          variant="danger"
           size="sm"
-          disabled={isLoading}
+          disabled={forceLogout.isPending}
         >
-          <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-          Actualizar
+          <LogOut className="w-4 h-4 mr-2" />
+          Cerrar sesion
         </Button>
-
-        {status?.status === 'connected' && (
-          <Button
-            onClick={handleForceLogout}
-            variant="danger"
-            size="sm"
-            disabled={forceLogout.isPending}
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Cerrar sesión
-          </Button>
-        )}
-      </div>
+      )}
     </Card>
   );
 }

@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 const sizeVariants = {
@@ -12,37 +13,34 @@ const sizeVariants = {
 const Modal = ({ open, onClose, children, size = 'md', className = '' }) => {
   if (!open) return null;
 
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-black/60 transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal Content */}
       <div
         className={`
-          relative ${sizeVariants[size]} mx-auto
-          bg-white rounded-3xl shadow-xl
-          transform transition-all
+          relative z-10 ${sizeVariants[size]} mx-auto
+          transform transition-all max-h-[90vh] overflow-y-auto
           ${className}
         `}
       >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors z-10"
+          className="absolute top-4 right-4 p-2 rounded-full bg-white/80 hover:bg-gray-100 transition-colors z-10"
         >
           <X className="w-5 h-5 text-gray-500" />
         </button>
 
-        {/* Content */}
-        <div className="p-6 max-h-[80vh] overflow-y-auto">
-          {children}
-        </div>
+        {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

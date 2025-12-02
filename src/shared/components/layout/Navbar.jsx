@@ -32,7 +32,7 @@ const Navbar = ({ user, tabs }) => {
   return (
     <>
       {/* Navbar principal - flotante */}
-      <header className="sticky top-0 z-50 w-full bg-gradient-to-b from-white/80 via-white/60 to-transparent backdrop-blur-md">
+      <header className="fixed top-0 left-0 right-0 z-40 w-full">
         <div className="px-4 py-2 lg:px-6 lg:py-4">
           {/* Desktop layout - navbar centrado, logo izquierda, logout derecha */}
           <div className="hidden lg:flex items-center relative">

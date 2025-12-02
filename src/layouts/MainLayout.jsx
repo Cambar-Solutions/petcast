@@ -20,7 +20,7 @@ export default function MainLayout({ children }) {
 
       {/* Contenido principal - se expande para llenar el espacio */}
       <main className="flex-1 flex flex-col relative z-10">
-        <div className="max-w-6xl w-full mx-auto px-4 pt-6 lg:pt-4 pb-8 flex-1 flex flex-col">
+        <div className="max-w-6xl w-full mx-auto px-4 pt-20 lg:pt-24 pb-8 flex-1 flex flex-col">
           {children}
         </div>
       </main>

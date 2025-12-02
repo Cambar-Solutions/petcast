@@ -1,21 +1,42 @@
 import { useState, useEffect } from 'react';
-import { Syringe, Send, User, PawPrint, Phone, Calendar, FileText, Users } from 'lucide-react';
+import { Syringe, Send } from 'lucide-react';
 import { useSendVaccinationReminder, useDuenos, usePetsByOwner } from '@/shared/hooks';
-import Card from './Card';
+import Modal from './Modal';
 import Button from './Button';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Textarea } from '@/shared/components/ui/textarea';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from '@/shared/components/ui/drawer';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select';
+
+const commonVaccines = [
+  'Rabia', 'Parvovirus', 'Moquillo', 'Hepatitis', 'Leptospirosis',
+  'Polivalente', 'Triple Felina', 'Leucemia Felina', 'Bordetella',
+];
 
 export default function VaccinationReminderForm({
+  isOpen,
+  onClose,
   pet = null,
   owner = null,
   onSuccess,
-  onCancel
+  isMobile = false,
 }) {
-  const [selectedOwnerId, setSelectedOwnerId] = useState(owner?.id || '');
-  const [selectedPetId, setSelectedPetId] = useState(pet?.id || '');
+  const [selectedOwnerId, setSelectedOwnerId] = useState(owner?.id?.toString() || '');
+  const [selectedPetId, setSelectedPetId] = useState(pet?.id?.toString() || '');
   const [formData, setFormData] = useState({
-    phone: owner?.telefono || '',
-    nombreDueno: owner?.nombre || '',
-    nombreMascota: pet?.nombre || '',
     nombreVacuna: '',
     fechaProgramada: '',
     notas: '',
@@ -25,31 +46,29 @@ export default function VaccinationReminderForm({
   const { data: mascotas = [], isLoading: loadingMascotas } = usePetsByOwner(selectedOwnerId || null);
   const sendReminder = useSendVaccinationReminder();
 
+  // Reset form cuando se abre
   useEffect(() => {
-    if (selectedOwnerId && duenos.length > 0) {
-      const selectedOwner = duenos.find(d => d.id === parseInt(selectedOwnerId));
-      if (selectedOwner) {
-        setFormData(prev => ({
-          ...prev,
-          phone: selectedOwner.telefono || '',
-          nombreDueno: (selectedOwner.nombre + ' ' + (selectedOwner.apellido || '')).trim(),
-        }));
-        setSelectedPetId('');
-      }
+    if (isOpen) {
+      setSelectedOwnerId(owner?.id?.toString() || '');
+      setSelectedPetId(pet?.id?.toString() || '');
+      setFormData({
+        nombreVacuna: '',
+        fechaProgramada: '',
+        notas: '',
+      });
     }
-  }, [selectedOwnerId, duenos]);
+  }, [isOpen, owner, pet]);
 
+  // Reset mascota cuando cambia el dueno
   useEffect(() => {
-    if (selectedPetId && mascotas.length > 0) {
-      const selectedPet = mascotas.find(p => p.id === parseInt(selectedPetId));
-      if (selectedPet) {
-        setFormData(prev => ({
-          ...prev,
-          nombreMascota: selectedPet.nombre || '',
-        }));
-      }
+    if (selectedOwnerId) {
+      setSelectedPetId('');
     }
-  }, [selectedPetId, mascotas]);
+  }, [selectedOwnerId]);
+
+  // Obtener datos del dueno y mascota seleccionados
+  const selectedOwner = duenos.find(d => d.id === parseInt(selectedOwnerId));
+  const selectedPet = mascotas.find(p => p.id === parseInt(selectedPetId));
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,148 +77,193 @@ export default function VaccinationReminderForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.phone || !formData.nombreDueno || !formData.nombreMascota || !formData.nombreVacuna) {
+    if (!selectedOwner || !selectedPet || !formData.nombreVacuna) {
       return;
     }
-    sendReminder.mutate(formData, {
+
+    const dataToSend = {
+      phone: selectedOwner.telefono || '',
+      nombreDueno: `${selectedOwner.nombre} ${selectedOwner.apellido || ''}`.trim(),
+      nombreMascota: selectedPet.nombre,
+      nombreVacuna: formData.nombreVacuna,
+      fechaProgramada: formData.fechaProgramada,
+      notas: formData.notas,
+    };
+
+    sendReminder.mutate(dataToSend, {
       onSuccess: (data) => {
         if (data.success && onSuccess) {
           onSuccess(data);
         }
+        onClose();
       },
     });
   };
 
-  const commonVaccines = [
-    'Rabia', 'Parvovirus', 'Moquillo', 'Hepatitis', 'Leptospirosis',
-    'Polivalente', 'Triple Felina', 'Leucemia Felina', 'Bordetella',
-  ];
-
-  return (
-    <Card className="w-full max-w-lg">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="bg-green-100 p-2 rounded-lg">
-          <Syringe className="w-6 h-6 text-green-600" />
-        </div>
-        <h3 className="text-lg font-semibold text-petcast-heading">
-          Recordatorio de Vacunacion
-        </h3>
+  const formContent = (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Seleccionar Dueno */}
+      <div className="space-y-1.5">
+        <Label className="text-xs text-petcast-text-light uppercase tracking-wide">
+          Dueno *
+        </Label>
+        <Select
+          value={selectedOwnerId}
+          onValueChange={(value) => setSelectedOwnerId(value)}
+        >
+          <SelectTrigger className="w-full rounded-xl">
+            <SelectValue placeholder={loadingDuenos ? 'Cargando...' : 'Selecciona un dueno'} />
+          </SelectTrigger>
+          <SelectContent>
+            {duenos.map((dueno) => (
+              <SelectItem key={dueno.id} value={dueno.id.toString()}>
+                {dueno.nombre} {dueno.apellido} - {dueno.telefono || 'Sin telefono'}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
-            <Users className="w-4 h-4" />
-            Seleccionar Dueno *
-          </label>
-          <select
-            value={selectedOwnerId}
-            onChange={(e) => setSelectedOwnerId(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-petcast-heading focus:border-transparent"
-            required
+      {/* Seleccionar Mascota */}
+      {selectedOwnerId && (
+        <div className="space-y-1.5">
+          <Label className="text-xs text-petcast-text-light uppercase tracking-wide">
+            Mascota *
+          </Label>
+          <Select
+            value={selectedPetId}
+            onValueChange={(value) => setSelectedPetId(value)}
           >
-            <option value="">
-              {loadingDuenos ? 'Cargando duenos...' : 'Selecciona un dueno'}
-            </option>
-            {duenos.map((dueno) => (
-              <option key={dueno.id} value={dueno.id}>
-                {dueno.nombre} {dueno.apellido} - {dueno.telefono || 'Sin telefono'}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {selectedOwnerId && (
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
-              <PawPrint className="w-4 h-4" />
-              Seleccionar Mascota *
-            </label>
-            <select
-              value={selectedPetId}
-              onChange={(e) => setSelectedPetId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-petcast-heading focus:border-transparent"
-              required
-            >
-              <option value="">
-                {loadingMascotas ? 'Cargando mascotas...' : 'Selecciona una mascota'}
-              </option>
+            <SelectTrigger className="w-full rounded-xl">
+              <SelectValue placeholder={loadingMascotas ? 'Cargando...' : 'Selecciona una mascota'} />
+            </SelectTrigger>
+            <SelectContent>
               {mascotas.map((mascota) => (
-                <option key={mascota.id} value={mascota.id}>
+                <SelectItem key={mascota.id} value={mascota.id.toString()}>
                   {mascota.nombre} - {mascota.especie}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-            {!loadingMascotas && mascotas.length === 0 && (
-              <p className="text-sm text-amber-600 mt-1">Este dueno no tiene mascotas registradas</p>
-            )}
-          </div>
-        )}
-
-        <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
-            <Phone className="w-4 h-4" />
-            Telefono del dueno *
-          </label>
-          <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="Ej: 7771234567" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-petcast-heading focus:border-transparent" required />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
-              <User className="w-4 h-4" />
-              Nombre del dueno *
-            </label>
-            <input type="text" name="nombreDueno" value={formData.nombreDueno} onChange={handleChange} placeholder="Nombre del propietario" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-petcast-heading focus:border-transparent" required />
-          </div>
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
-              <PawPrint className="w-4 h-4" />
-              Nombre de la mascota *
-            </label>
-            <input type="text" name="nombreMascota" value={formData.nombreMascota} onChange={handleChange} placeholder="Nombre de la mascota" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-petcast-heading focus:border-transparent" required />
-          </div>
-        </div>
-
-        <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
-            <Syringe className="w-4 h-4" />
-            Vacuna *
-          </label>
-          <select name="nombreVacuna" value={formData.nombreVacuna} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-petcast-heading focus:border-transparent" required>
-            <option value="">Selecciona una vacuna</option>
-            {commonVaccines.map((vaccine) => (<option key={vaccine} value={vaccine}>{vaccine}</option>))}
-            <option value="Otra">Otra</option>
-          </select>
-          {formData.nombreVacuna === 'Otra' && (
-            <input type="text" onChange={(e) => setFormData(prev => ({ ...prev, nombreVacuna: e.target.value }))} placeholder="Especifica la vacuna" className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-petcast-heading focus:border-transparent" />
+            </SelectContent>
+          </Select>
+          {!loadingMascotas && mascotas.length === 0 && (
+            <p className="text-sm text-amber-600 mt-1">Este dueno no tiene mascotas registradas</p>
           )}
         </div>
+      )}
 
-        <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
-            <Calendar className="w-4 h-4" />
-            Fecha programada (opcional)
-          </label>
-          <input type="date" name="fechaProgramada" value={formData.fechaProgramada} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-petcast-heading focus:border-transparent" />
-        </div>
+      {/* Vacuna */}
+      <div className="space-y-1.5">
+        <Label className="text-xs text-petcast-text-light uppercase tracking-wide">
+          Vacuna *
+        </Label>
+        <Select
+          value={formData.nombreVacuna}
+          onValueChange={(value) => setFormData(prev => ({ ...prev, nombreVacuna: value }))}
+        >
+          <SelectTrigger className="w-full rounded-xl">
+            <SelectValue placeholder="Selecciona una vacuna" />
+          </SelectTrigger>
+          <SelectContent>
+            {commonVaccines.map((vaccine) => (
+              <SelectItem key={vaccine} value={vaccine}>
+                {vaccine}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-        <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
-            <FileText className="w-4 h-4" />
-            Notas adicionales (opcional)
-          </label>
-          <textarea name="notas" value={formData.notas} onChange={handleChange} placeholder="Instrucciones o notas adicionales..." rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-petcast-heading focus:border-transparent resize-none" />
-        </div>
+      {/* Fecha programada */}
+      <div className="space-y-1.5">
+        <Label htmlFor="fechaProgramada" className="text-xs text-petcast-text-light uppercase tracking-wide">
+          Fecha programada
+        </Label>
+        <Input
+          id="fechaProgramada"
+          name="fechaProgramada"
+          type="date"
+          value={formData.fechaProgramada}
+          onChange={handleChange}
+          className="rounded-xl"
+        />
+      </div>
 
-        <div className="flex gap-3 pt-2">
-          {onCancel && (<Button type="button" variant="outline" onClick={onCancel} className="flex-1">Cancelar</Button>)}
-          <Button type="submit" variant="primary" disabled={sendReminder.isPending} className="flex-1">
+      {/* Notas */}
+      <div className="space-y-1.5">
+        <Label htmlFor="notas" className="text-xs text-petcast-text-light uppercase tracking-wide">
+          Notas adicionales
+        </Label>
+        <Textarea
+          id="notas"
+          name="notas"
+          value={formData.notas}
+          onChange={handleChange}
+          placeholder="Instrucciones o notas adicionales..."
+          rows={3}
+          className="rounded-xl resize-none"
+        />
+      </div>
+
+      {!isMobile && (
+        <div className="flex justify-end gap-3 pt-4">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button type="submit" variant="primary" disabled={sendReminder.isPending}>
             <Send className="w-4 h-4 mr-2" />
-            {sendReminder.isPending ? 'Enviando...' : 'Enviar Recordatorio'}
+            {sendReminder.isPending ? 'Enviando...' : 'Enviar'}
           </Button>
         </div>
-      </form>
-    </Card>
+      )}
+    </form>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer open={isOpen} onOpenChange={onClose}>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle className="flex items-center gap-2">
+              <Syringe className="w-5 h-5 text-green-600" />
+              Recordatorio de Vacunacion
+            </DrawerTitle>
+          </DrawerHeader>
+          <div className="flex-1 overflow-y-auto px-4 pb-4">
+            {formContent}
+          </div>
+          <DrawerFooter>
+            <Button type="button" variant="secondary" onClick={onClose} className="w-full">
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              onClick={handleSubmit}
+              className="w-full"
+              disabled={sendReminder.isPending}
+            >
+              <Send className="w-4 h-4 mr-2" />
+              {sendReminder.isPending ? 'Enviando...' : 'Enviar'}
+            </Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
+  return (
+    <Modal open={isOpen} onClose={onClose} size="md">
+      <div className="bg-white rounded-3xl p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="bg-green-100 p-2 rounded-lg">
+            <Syringe className="w-6 h-6 text-green-600" />
+          </div>
+          <h3 className="text-xl font-semibold text-petcast-heading">
+            Recordatorio de Vacunacion
+          </h3>
+        </div>
+        {formContent}
+      </div>
+    </Modal>
   );
 }

@@ -56,7 +56,7 @@ const SearchBar = ({
         placeholder={placeholder}
         value={localValue}
         onChange={(e) => handleInputChange(e.target.value)}
-        className={`w-full bg-white ${showIcon ? 'pl-10' : 'pl-4'} ${showClearButton && localValue ? 'pr-10' : 'pr-4'} py-3 rounded-xl text-base border-gray-200 border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-transparent ${className}`}
+        className={`w-full bg-white ${showIcon ? 'pl-10' : 'pl-4'} ${showClearButton && localValue ? 'pr-10' : 'pr-4'} py-3 rounded-xl text-base border-gray-200 border shadow-sm transition-all duration-200 focus:outline-none focus:shadow-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 ${className}`}
       />
       {showClearButton && localValue && (
         <button

@@ -19,7 +19,7 @@ const MobileNav = ({ tabs, activeTab }) => {
   const filteredTabs = tabs.filter(tab => tab.id !== 'perfil');
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 safe-area-bottom">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 safe-area-bottom">
       <div className="mx-auto px-4 py-2 max-w-6xl">
         <nav className="bg-petcast-white/95 backdrop-blur-xl rounded-2xl animated-border">
           <div className="flex justify-around items-center px-2 py-2">

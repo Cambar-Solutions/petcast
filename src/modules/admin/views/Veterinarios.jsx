@@ -152,57 +152,100 @@ export default function Veterinarios() {
         debounceMs={300}
       />
 
-      {/* Tabla */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
-              <tr>
-                <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Nombre</th>
-                <th className="text-left px-6 py-3 text-sm font-medium text-gray-500 hidden md:table-cell">Email</th>
-                <th className="text-left px-6 py-3 text-sm font-medium text-gray-500 hidden lg:table-cell">Especialidad</th>
-                <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Status</th>
-                <th className="text-right px-6 py-3 text-sm font-medium text-gray-500">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filteredVets.map((vet) => (
-                <tr key={vet.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <p className="font-medium text-gray-900">{vet.name}</p>
-                    <p className="text-sm text-gray-500 md:hidden">{vet.email}</p>
-                  </td>
-                  <td className="px-6 py-4 text-gray-600 hidden md:table-cell">{vet.email}</td>
-                  <td className="px-6 py-4 text-gray-600 hidden lg:table-cell">{vet.especialidad}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+      {/* Cards en móvil */}
+      <div className="grid grid-cols-1 gap-3 md:hidden">
+        {filteredVets.map((vet) => (
+          <div key={vet.id} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-blue-600 font-semibold text-sm">
+                    {vet.name?.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-gray-900 text-sm truncate">{vet.name}</p>
+                    <span className={`px-2 py-0.5 text-xs font-medium rounded-full flex-shrink-0 ${
                       vet.status === 'Activo' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
                     }`}>
                       {vet.status}
                     </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => handleOpenEdit(vet)}
-                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleOpenDeleteConfirm(vet)}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                  <p className="text-xs text-gray-500 truncate">{vet.email}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+                <button
+                  onClick={() => handleOpenEdit(vet)}
+                  className="p-2 text-blue-500 bg-blue-50 hover:bg-blue-100 hover:scale-110 rounded-lg cursor-pointer transition-all duration-200"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleOpenDeleteConfirm(vet)}
+                  className="p-2 text-red-500 bg-red-50 hover:bg-red-100 hover:scale-110 rounded-lg cursor-pointer transition-all duration-200"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+        {filteredVets.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            No se encontraron veterinarios
+          </div>
+        )}
+      </div>
 
+      {/* Tabla en desktop */}
+      <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-gray-50 border-b border-gray-100">
+            <tr>
+              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Nombre</th>
+              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Email</th>
+              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500 hidden lg:table-cell">Especialidad</th>
+              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Status</th>
+              <th className="text-right px-6 py-3 text-sm font-medium text-gray-500">Acciones</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {filteredVets.map((vet) => (
+              <tr key={vet.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4">
+                  <p className="font-medium text-gray-900">{vet.name}</p>
+                </td>
+                <td className="px-6 py-4 text-gray-600">{vet.email}</td>
+                <td className="px-6 py-4 text-gray-600 hidden lg:table-cell">{vet.especialidad}</td>
+                <td className="px-6 py-4">
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                    vet.status === 'Activo' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                  }`}>
+                    {vet.status}
+                  </span>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => handleOpenEdit(vet)}
+                      className="p-2 text-blue-500 bg-blue-50 hover:bg-blue-100 hover:scale-110 rounded-lg cursor-pointer transition-all duration-200"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleOpenDeleteConfirm(vet)}
+                      className="p-2 text-red-500 bg-red-50 hover:bg-red-100 hover:scale-110 rounded-lg cursor-pointer transition-all duration-200"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
         {filteredVets.length === 0 && (
           <div className="text-center py-8 text-gray-500">
             No se encontraron veterinarios

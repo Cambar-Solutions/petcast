@@ -195,7 +195,7 @@ export default function Mascotas() {
                   <TooltipTrigger asChild>
                     <button
                       onClick={() => navigate(`/vet/mascota/${mascota.id}`)}
-                      className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg cursor-pointer"
+                      className="p-2 text-blue-500 bg-blue-50 hover:bg-blue-100 hover:scale-110 rounded-lg cursor-pointer transition-all duration-200"
                     >
                       <Eye className="w-4 h-4" />
                     </button>
@@ -208,7 +208,7 @@ export default function Mascotas() {
                   <TooltipTrigger asChild>
                     <button
                       onClick={() => handleOpenDeleteConfirm(mascota)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg cursor-pointer"
+                      className="p-2 text-red-500 bg-red-50 hover:bg-red-100 hover:scale-110 rounded-lg cursor-pointer transition-all duration-200"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

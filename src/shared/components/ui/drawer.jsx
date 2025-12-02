@@ -31,7 +31,7 @@ function DrawerOverlay({ className, ...props }) {
   return (
     <DrawerPrimitive.Overlay
       className={cn(
-        'fixed inset-0 z-50 bg-black/40 backdrop-blur-sm',
+        'fixed inset-0 z-[10000] bg-black/40',
         className
       )}
       {...props}
@@ -45,7 +45,7 @@ function DrawerContent({ className, children, ...props }) {
       <DrawerOverlay />
       <DrawerPrimitive.Content
         className={cn(
-          'fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto max-h-[96vh] flex-col rounded-t-3xl bg-white',
+          'fixed inset-x-0 bottom-0 z-[10001] mt-24 flex h-auto max-h-[96vh] flex-col rounded-t-3xl bg-white',
           className
         )}
         {...props}
