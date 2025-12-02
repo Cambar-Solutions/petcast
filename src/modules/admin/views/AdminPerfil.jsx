@@ -8,7 +8,7 @@ export default function AdminPerfil() {
   const { user } = useAuth();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-8">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Mi Perfil</h1>
         <p className="text-gray-600">Administra tu informacion personal</p>

@@ -31,20 +31,25 @@ const MobileNav = ({ tabs, activeTab }) => {
                   onClick={() => navigate(tab.path)}
                   className={`relative flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-all duration-200 ${
                     isActive
-                      ? 'text-petcast-heading'
+                      ? 'animated-border'
                       : 'text-petcast-text-light hover:text-petcast-heading hover:bg-petcast-bg-soft'
                   }`}
                 >
-                  <IconComponent className="w-5 h-5 mb-0.5" />
-                  <span className={`text-[10px] font-medium ${isActive ? 'font-semibold' : ''}`}>
+                  <IconComponent className={`w-5 h-5 mb-0.5 ${isActive ? 'text-petcast-orange' : ''}`} />
+                  <span className={`text-[10px] font-medium ${isActive ? 'font-semibold text-petcast-orange' : ''}`}>
                     {tab.label}
                   </span>
-                  {/* Línea activa */}
-                  <span
-                    className={`absolute bottom-1.5 left-1/2 -translate-x-1/2 h-0.5 bg-petcast-heading rounded-full transition-all duration-200 ${
-                      isActive ? 'w-6' : 'w-0'
-                    }`}
-                  />
+                  {/* Línea activa con gradiente animado */}
+                  {isActive && (
+                    <span
+                      className="absolute bottom-1.5 left-1/2 -translate-x-1/2 h-0.5 w-6 rounded-full"
+                      style={{
+                        background: 'linear-gradient(90deg, #D0EDFE, #7DD3FC, #F97316, #7DD3FC, #D0EDFE)',
+                        backgroundSize: '300% 100%',
+                        animation: 'border-flow 4s ease-in-out infinite'
+                      }}
+                    />
+                  )}
                 </button>
               );
             })}

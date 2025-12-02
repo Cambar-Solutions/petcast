@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Edit, Trash2, Eye, Loader2 } from 'lucide-react';
 import { Button, SearchBar, ConfirmDialog } from '@/shared/components';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
 import { MascotaForm } from '../components';
 import { usePets, useCreatePet, useUpdatePet, useDeletePet, useDuenos } from '@/shared/hooks';
 
@@ -152,7 +153,7 @@ export default function Mascotas() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Mascotas</h1>
@@ -188,24 +189,32 @@ export default function Mascotas() {
                 </span>
               </div>
               <div className="flex gap-1">
-                <button
-                  onClick={() => navigate(`/vet/mascota/${mascota.id}`)}
-                  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
-                >
-                  <Eye className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleOpenEdit(mascota)}
-                  className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg"
-                >
-                  <Edit className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleOpenDeleteConfirm(mascota)}
-                  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => navigate(`/vet/mascota/${mascota.id}`)}
+                      className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg cursor-pointer"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Ver detalles</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => handleOpenDeleteConfirm(mascota)}
+                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg cursor-pointer"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Eliminar</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
             <h3 className="font-semibold text-gray-900">{mascota.name}</h3>

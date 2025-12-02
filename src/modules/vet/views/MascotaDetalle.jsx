@@ -1,19 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, QrCode, Calendar, FileText, Download, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, QrCode, Calendar, FileText, Download, X, Loader2, Pencil } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button, Modal } from '@/shared/components';
-import { usePet, useDuenos, useMedicalRecordsByPet } from '@/shared/hooks';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
+import { MascotaForm } from '../components';
+import { usePet, useDuenos, useMedicalRecordsByPet, useUpdatePet } from '@/shared/hooks';
 
 export default function MascotaDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [showQRModal, setShowQRModal] = useState(false);
+  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Cargar datos reales
   const { data: mascota, isLoading, error } = usePet(id);
   const { data: duenos = [] } = useDuenos();
   const { data: fichasMedicas = [] } = useMedicalRecordsByPet(id);
+  const updatePet = useUpdatePet();
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Obtener propietario
   const propietario = duenos.find(d => d.id === mascota?.duenoId);
@@ -25,6 +37,30 @@ export default function MascotaDetalle() {
 
   // URL para el QR (ruta pública)
   const qrUrl = `${window.location.origin}/mascota/${id}`;
+
+  // Función para manejar la edición
+  const handleSubmitEdit = async (formData) => {
+    try {
+      const petData = {
+        nombre: formData.nombre,
+        especie: formData.especie,
+        raza: formData.raza || null,
+        edad: parseInt(formData.edad) || 0,
+        peso: formData.peso ? parseFloat(formData.peso) : null,
+        sexo: formData.sexo === 'Macho' ? 'MACHO' : 'HEMBRA',
+        color: formData.color || null,
+      };
+
+      if (formData.duenoId) {
+        petData.duenoId = parseInt(formData.duenoId);
+      }
+
+      await updatePet.mutateAsync({ id: mascota.id, ...petData });
+      setIsEditFormOpen(false);
+    } catch (err) {
+      console.error('Error al actualizar mascota:', err);
+    }
+  };
 
   // Función para descargar QR como imagen
   const downloadQR = () => {
@@ -103,7 +139,26 @@ export default function MascotaDetalle() {
                   {mascota.especie === 'Perro' ? '🐕' : mascota.especie === 'Gato' ? '🐈' : '🐾'}
                 </span>
               </div>
-              <h2 className="text-lg font-semibold text-petcast-heading">{mascota.nombre}</h2>
+              <div className="relative w-full flex justify-center items-center">
+                <h2 className="text-lg font-semibold text-petcast-heading">{mascota.nombre}</h2>
+                {/* Botón editar alineado con el nombre */}
+                <div className="absolute right-0">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => setIsEditFormOpen(true)}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer bg-gray-100"
+                        aria-label="Editar mascota"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Editar</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </div>
               {mascota.codigoQR && (
                 <p className="text-xs text-petcast-text-light mt-1">{mascota.codigoQR}</p>
               )}
@@ -311,6 +366,21 @@ export default function MascotaDetalle() {
           </div>
         </div>
       </Modal>
+
+      {/* Form Modal/Drawer para editar */}
+      <MascotaForm
+        isOpen={isEditFormOpen}
+        onClose={() => setIsEditFormOpen(false)}
+        onSubmit={handleSubmitEdit}
+        mascota={mascota}
+        isMobile={isMobile}
+        duenos={duenos.map(d => ({
+          id: d.id,
+          name: `${d.nombre} ${d.apellido}`.trim(),
+          email: d.correoElectronico,
+        }))}
+        isLoading={updatePet.isPending}
+      />
     </div>
   );
 }
