@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, QrCode, Calendar, FileText, Download, Loader2, Pencil, User } from 'lucide-react';
+import { ArrowLeft, QrCode, Calendar, FileText, Download, Loader2, Pencil, User, Plus, History, ChevronRight, Copy, Check } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button, Modal } from '@/shared/components';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
@@ -12,8 +12,8 @@ import {
   DrawerTitle,
   DrawerFooter,
 } from '@/shared/components/ui/drawer';
-import { MascotaForm } from '../components';
-import { usePet, useDuenos, useMedicalRecordsByPet, useUpdatePet } from '@/shared/hooks';
+import { MascotaForm, FichaMedicaForm } from '../components';
+import { usePet, useDuenos, useMedicalRecordsByPet, useUpdatePet, useCreateMedicalRecord, useUpdateMedicalRecord } from '@/shared/hooks';
 
 export default function MascotaDetalle() {
   const { id } = useParams();
@@ -21,12 +21,18 @@ export default function MascotaDetalle() {
   const [showQRModal, setShowQRModal] = useState(false);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isFichaFormOpen, setIsFichaFormOpen] = useState(false);
+  const [selectedFicha, setSelectedFicha] = useState(null);
+  const [showHistorial, setShowHistorial] = useState(false);
+  const [copiado, setCopiado] = useState(false);
 
   // Cargar datos reales
   const { data: mascota, isLoading, error } = usePet(id);
   const { data: duenos = [] } = useDuenos();
   const { data: fichasMedicas = [] } = useMedicalRecordsByPet(id);
   const updatePet = useUpdatePet();
+  const createMedicalRecord = useCreateMedicalRecord();
+  const updateMedicalRecord = useUpdateMedicalRecord();
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -38,10 +44,9 @@ export default function MascotaDetalle() {
   // Obtener propietario
   const propietario = duenos.find(d => d.id === mascota?.duenoId);
 
-  // Obtener última ficha médica (ordenar por fechaConsulta del backend)
-  const ultimaFicha = fichasMedicas.length > 0
-    ? fichasMedicas.sort((a, b) => new Date(b.fechaConsulta) - new Date(a.fechaConsulta))[0]
-    : null;
+  // Ordenar fichas por fecha (más reciente primero)
+  const fichasOrdenadas = [...fichasMedicas].sort((a, b) => new Date(b.fechaConsulta) - new Date(a.fechaConsulta));
+  const ultimaFicha = fichasOrdenadas.length > 0 ? fichasOrdenadas[0] : null;
 
   // URL para el QR (ruta pública)
   const qrUrl = `${window.location.origin}/mascota/${id}`;
@@ -96,6 +101,51 @@ export default function MascotaDetalle() {
     };
 
     img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+  };
+
+  // Función para copiar código
+  const handleCopyCodigo = () => {
+    if (mascota?.codigoQR) {
+      navigator.clipboard.writeText(mascota.codigoQR);
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 2000);
+    }
+  };
+
+  // Funciones para fichas médicas
+  const handleOpenNewFicha = () => {
+    setSelectedFicha(null);
+    setIsFichaFormOpen(true);
+  };
+
+  const handleEditFicha = (ficha) => {
+    setSelectedFicha(ficha);
+    setIsFichaFormOpen(true);
+  };
+
+  const handleCloseFichaForm = () => {
+    setIsFichaFormOpen(false);
+    setSelectedFicha(null);
+  };
+
+  const handleSubmitFicha = async (formData) => {
+    try {
+      const fichaData = {
+        diagnostico: formData.diagnostico,
+        tratamiento: formData.tratamiento || null,
+        observaciones: formData.observaciones || null,
+        mascotaId: parseInt(id),
+      };
+
+      if (selectedFicha) {
+        await updateMedicalRecord.mutateAsync({ id: selectedFicha.id, ...fichaData });
+      } else {
+        await createMedicalRecord.mutateAsync(fichaData);
+      }
+      handleCloseFichaForm();
+    } catch (err) {
+      console.error('Error al guardar ficha médica:', err);
+    }
   };
 
   // Estado de carga
@@ -205,15 +255,23 @@ export default function MascotaDetalle() {
               <AccordionContent className="px-4">
                 {ultimaFicha ? (
                   <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-petcast-text-light bg-blue-50 rounded-lg px-3 py-2">
-                      <Calendar className="w-4 h-4 text-blue-500" />
-                      <span>
-                        {new Date(ultimaFicha.fechaConsulta).toLocaleDateString('es-MX', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric'
-                        })}
-                      </span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-sm text-petcast-text-light bg-blue-50 rounded-lg px-3 py-2">
+                        <Calendar className="w-4 h-4 text-blue-500" />
+                        <span>
+                          {new Date(ultimaFicha.fechaConsulta).toLocaleDateString('es-MX', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                          })}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => handleEditFicha(ultimaFicha)}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 bg-gray-100 rounded-lg"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
                     </div>
 
                     {ultimaFicha.diagnostico && (
@@ -236,11 +294,38 @@ export default function MascotaDetalle() {
                         <p className="text-sm text-petcast-heading">{ultimaFicha.observaciones}</p>
                       </div>
                     )}
+
+                    {/* Botones de acción */}
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        onClick={handleOpenNewFicha}
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Nueva ficha
+                      </button>
+                      {fichasOrdenadas.length > 1 && (
+                        <button
+                          onClick={() => setShowHistorial(true)}
+                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+                        >
+                          <History className="w-4 h-4" />
+                          Historial ({fichasOrdenadas.length})
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <div className="text-center py-4">
                     <FileText className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                    <p className="text-sm text-gray-500">Sin registros medicos</p>
+                    <p className="text-sm text-gray-500 mb-3">Sin registros medicos</p>
+                    <button
+                      onClick={handleOpenNewFicha}
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Crear primera ficha
+                    </button>
                   </div>
                 )}
               </AccordionContent>
@@ -333,7 +418,28 @@ export default function MascotaDetalle() {
                   </div>
                 </div>
                 {mascota.codigoQR && (
-                  <p className="text-xs text-petcast-text-light mt-1">{mascota.codigoQR}</p>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <p className="text-xs text-petcast-text-light truncate max-w-[120px]" title={mascota.codigoQR}>
+                      {mascota.codigoQR}
+                    </p>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={handleCopyCodigo}
+                          className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                        >
+                          {copiado ? (
+                            <Check className="w-3 h-3 text-green-500" />
+                          ) : (
+                            <Copy className="w-3 h-3" />
+                          )}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{copiado ? 'Copiado!' : 'Copiar codigo'}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                 )}
               </div>
 
@@ -412,26 +518,54 @@ export default function MascotaDetalle() {
                   </div>
                   Ultima revision medica
                 </h3>
-                {ultimaFicha && (
-                  <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">
-                    {ultimaFicha.tipo || 'Consulta'}
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                  {fichasOrdenadas.length > 1 && (
+                    <button
+                      onClick={() => setShowHistorial(true)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                    >
+                      <History className="w-3.5 h-3.5" />
+                      Historial ({fichasOrdenadas.length})
+                    </button>
+                  )}
+                  <button
+                    onClick={handleOpenNewFicha}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Nueva ficha
+                  </button>
+                </div>
               </div>
 
               {ultimaFicha ? (
                 <div className="space-y-4">
-                  {/* Fecha */}
-                  <div className="flex items-center gap-2 text-sm text-petcast-text-light bg-blue-50 rounded-lg px-3 py-2">
-                    <Calendar className="w-4 h-4 text-blue-500" />
-                    <span>
-                      {new Date(ultimaFicha.fechaConsulta).toLocaleDateString('es-MX', {
-                        weekday: 'long',
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric'
-                      })}
-                    </span>
+                  {/* Fecha y editar */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm text-petcast-text-light bg-blue-50 rounded-lg px-3 py-2">
+                      <Calendar className="w-4 h-4 text-blue-500" />
+                      <span>
+                        {new Date(ultimaFicha.fechaConsulta).toLocaleDateString('es-MX', {
+                          weekday: 'long',
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => handleEditFicha(ultimaFicha)}
+                          className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Editar ficha</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
 
                   {/* Grid de información */}
@@ -464,7 +598,14 @@ export default function MascotaDetalle() {
                     <FileText className="w-8 h-8 text-gray-400" />
                   </div>
                   <p className="text-sm font-medium text-gray-500">Sin registros medicos</p>
-                  <p className="text-xs text-gray-400 mt-1">Aun no hay revisiones registradas</p>
+                  <p className="text-xs text-gray-400 mt-1 mb-4">Aun no hay revisiones registradas</p>
+                  <button
+                    onClick={handleOpenNewFicha}
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Crear primera ficha
+                  </button>
                 </div>
               )}
             </div>
@@ -611,7 +752,7 @@ export default function MascotaDetalle() {
         </Modal>
       )}
 
-      {/* Form Modal/Drawer para editar */}
+      {/* Form Modal/Drawer para editar mascota */}
       <MascotaForm
         isOpen={isEditFormOpen}
         onClose={() => setIsEditFormOpen(false)}
@@ -625,6 +766,137 @@ export default function MascotaDetalle() {
         }))}
         isLoading={updatePet.isPending}
       />
+
+      {/* Form Modal/Drawer para ficha médica */}
+      <FichaMedicaForm
+        isOpen={isFichaFormOpen}
+        onClose={handleCloseFichaForm}
+        onSubmit={handleSubmitFicha}
+        ficha={selectedFicha}
+        isMobile={isMobile}
+        isLoading={createMedicalRecord.isPending || updateMedicalRecord.isPending}
+        mascotaNombre={mascota?.nombre}
+      />
+
+      {/* Modal/Drawer de historial de fichas */}
+      {isMobile ? (
+        <Drawer open={showHistorial} onOpenChange={setShowHistorial}>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle className="flex items-center gap-2">
+                <History className="w-5 h-5 text-blue-600" />
+                Historial Medico
+              </DrawerTitle>
+              <p className="text-sm text-petcast-text-light">{fichasOrdenadas.length} registros</p>
+            </DrawerHeader>
+            <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-3 max-h-[60vh]">
+              {fichasOrdenadas.map((ficha) => (
+                <div
+                  key={ficha.id}
+                  className="bg-gray-50 rounded-xl p-4 border border-gray-100"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2 text-xs text-petcast-text-light">
+                      <Calendar className="w-3.5 h-3.5 text-blue-500" />
+                      {new Date(ficha.fechaConsulta).toLocaleDateString('es-MX', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                      })}
+                    </div>
+                    <button
+                      onClick={() => {
+                        setShowHistorial(false);
+                        handleEditFicha(ficha);
+                      }}
+                      className="p-1 text-gray-400 hover:text-gray-600"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <p className="text-sm font-medium text-petcast-heading mb-1">{ficha.diagnostico}</p>
+                  {ficha.tratamiento && (
+                    <p className="text-xs text-petcast-text-light line-clamp-2">{ficha.tratamiento}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+            <DrawerFooter>
+              <Button
+                variant="secondary"
+                className="w-full"
+                onClick={() => setShowHistorial(false)}
+              >
+                Cerrar
+              </Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Modal open={showHistorial} onClose={() => setShowHistorial(false)} size="md">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+              <History className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-petcast-heading">Historial Medico</h3>
+              <p className="text-sm text-petcast-text-light">{fichasOrdenadas.length} registros de {mascota?.nombre}</p>
+            </div>
+          </div>
+
+          <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+            {fichasOrdenadas.map((ficha) => (
+              <div
+                key={ficha.id}
+                className="bg-gray-50 rounded-xl p-4 border border-gray-100 hover:border-gray-200 transition-colors"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2 text-sm text-petcast-text-light bg-blue-50 rounded-lg px-2 py-1">
+                    <Calendar className="w-3.5 h-3.5 text-blue-500" />
+                    {new Date(ficha.fechaConsulta).toLocaleDateString('es-MX', {
+                      weekday: 'short',
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric'
+                    })}
+                  </div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => {
+                          setShowHistorial(false);
+                          handleEditFicha(ficha);
+                        }}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Editar ficha</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <p className="text-sm font-medium text-petcast-heading mb-1">{ficha.diagnostico}</p>
+                {ficha.tratamiento && (
+                  <p className="text-sm text-petcast-text-light mb-1">
+                    <span className="font-medium text-blue-600">Tratamiento:</span> {ficha.tratamiento}
+                  </p>
+                )}
+                {ficha.observaciones && (
+                  <p className="text-xs text-petcast-text-light line-clamp-2">{ficha.observaciones}</p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-end mt-4 pt-4 border-t border-gray-100">
+            <Button variant="secondary" onClick={() => setShowHistorial(false)}>
+              Cerrar
+            </Button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
