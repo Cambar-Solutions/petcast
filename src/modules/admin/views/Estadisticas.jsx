@@ -1,9 +1,11 @@
 import { TrendingUp, Users, Calendar, PawPrint, Loader2, UserCheck, AlertCircle } from 'lucide-react';
 import { Title, Description } from '@/shared/components';
-import { useDashboard } from '@/shared/hooks';
+import { useDashboard, useCitasPorMes } from '@/shared/hooks';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function Estadisticas() {
   const { data: stats, isLoading, error } = useDashboard();
+  const { data: citasPorMes = [], isLoading: loadingChart } = useCitasPorMes();
 
   if (isLoading) {
     return (
@@ -32,7 +34,6 @@ export default function Estadisticas() {
         </Description>
       </div>
 
-      {/* Cards de estadisticas principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-4">
@@ -71,7 +72,6 @@ export default function Estadisticas() {
         </div>
       </div>
 
-      {/* Segunda fila de estadisticas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-4">
@@ -101,7 +101,6 @@ export default function Estadisticas() {
         </div>
       </div>
 
-      {/* Resumen de citas */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <Title variant="card-title" className="mb-4">Resumen General</Title>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -124,11 +123,31 @@ export default function Estadisticas() {
         </div>
       </div>
 
-      {/* Grafico placeholder */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <Title variant="card-title" className="mb-4">Citas por mes</Title>
-        <div className="h-64 bg-gray-50 rounded-xl flex items-center justify-center">
-          <p className="text-gray-400">Grafico de citas (proximamente)</p>
+        <div className="h-64">
+          {loadingChart ? (
+            <div className="h-full flex items-center justify-center">
+              <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+            </div>
+          ) : citasPorMes.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={citasPorMes} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="mes" tick={{ fontSize: 12, fill: "#6b7280" }} axisLine={{ stroke: "#e5e7eb" }} />
+                <YAxis tick={{ fontSize: 12, fill: "#6b7280" }} axisLine={{ stroke: "#e5e7eb" }} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#fff", border: "1px solid #e5e7eb", borderRadius: "8px", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}
+                  formatter={(value) => [value, "Citas"]}
+                />
+                <Bar dataKey="citas" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={50} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full bg-gray-50 rounded-xl flex items-center justify-center">
+              <p className="text-gray-400">No hay datos de citas disponibles</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

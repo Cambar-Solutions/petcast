@@ -57,6 +57,7 @@ export {
 export {
   useStatistics,
   useDashboard,
+  useCitasPorMes,
 } from './useStatistics';
 
 // Hook de responsive

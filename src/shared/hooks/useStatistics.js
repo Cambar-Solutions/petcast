@@ -1,19 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { statisticsApi } from '@/shared/services/api';
 
-/**
- * Hooks para gestionar estadísticas
- */
-
-// Keys para el cache de TanStack Query
 const QUERY_KEYS = {
   statistics: ['statistics'],
   dashboard: ['statistics', 'dashboard'],
+  citasPorMes: ['statistics', 'citas-por-mes'],
 };
 
-/**
- * Obtener todas las estadísticas
- */
 export const useStatistics = () => {
   return useQuery({
     queryKey: QUERY_KEYS.statistics,
@@ -24,14 +17,21 @@ export const useStatistics = () => {
   });
 };
 
-/**
- * Obtener resumen del dashboard
- */
 export const useDashboard = () => {
   return useQuery({
     queryKey: QUERY_KEYS.dashboard,
     queryFn: async () => {
       const { data } = await statisticsApi.get('/statistics/dashboard');
+      return data;
+    },
+  });
+};
+
+export const useCitasPorMes = () => {
+  return useQuery({
+    queryKey: QUERY_KEYS.citasPorMes,
+    queryFn: async () => {
+      const { data } = await statisticsApi.get('/statistics/citas-por-mes');
       return data;
     },
   });
